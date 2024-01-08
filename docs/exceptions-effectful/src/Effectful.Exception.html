@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Exception handling.</span><span>
+</span><span id="line-2"></span><span class="hs-comment">--</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Exception</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Global mechanisms</span></span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Effectful.Exception.html#MonadGlobalException"><span class="hs-identifier">MonadGlobalException</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Basic exceptions</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><span class="hs-comment">-- $basics</span></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Throwing</span></span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadThrow</span></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier">SafeEx.throwM</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwString"><span class="hs-identifier">SafeEx.throwString</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Catching</span></span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadCatch</span></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#catch"><span class="hs-identifier">SafeEx.catch</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#catchAny"><span class="hs-identifier">SafeEx.catchAny</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#handle"><span class="hs-identifier">SafeEx.handle</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#handleAny"><span class="hs-identifier">SafeEx.handleAny</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#try"><span class="hs-identifier">SafeEx.try</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#tryAny"><span class="hs-identifier">SafeEx.tryAny</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><span class="hs-identifier">Handler</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#catches"><span class="hs-identifier">SafeEx.catches</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="Effectful.Exception.html#onException"><span class="hs-identifier">onException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><span class="hs-identifier">SafeEx.catchIOError</span></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Masking</span></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><span class="hs-comment">-- $masking</span></span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadMask</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.ExitCase</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.mask_</span></span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.uninterruptibleMask_</span></span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.bracket</span></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.bracket_</span></span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.finally</span></span><span class="hs-special">,</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="hs-identifier">Ex.bracketOnError</span></span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Utils</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#SyncExceptionWrapper"><span class="hs-identifier">SafeEx.SyncExceptionWrapper</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#AsyncExceptionWrapper"><span class="hs-identifier">SafeEx.AsyncExceptionWrapper</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#toSyncException"><span class="hs-identifier">SafeEx.toSyncException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#toAsyncException"><span class="hs-identifier">SafeEx.toAsyncException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#isSyncException"><span class="hs-identifier">SafeEx.isSyncException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#isAsyncException"><span class="hs-identifier">SafeEx.isAsyncException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Exiting</span></span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><span class="hs-comment">-- $exit</span></span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="hs-identifier">ExitCode</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Functions</span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><a href="Effectful.Exception.html#exitFailure"><span class="hs-identifier">exitFailure</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><a href="Effectful.Exception.html#exitSuccess"><span class="hs-identifier">exitSuccess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier">exitWith</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Misc</span></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="hs-identifier">CallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="hs-identifier">Exception</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><span class="hs-identifier">SomeException</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="hs-identifier">IOException</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#StringException"><span class="hs-identifier">SafeEx.StringException</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html"><span class="hs-identifier">Control.Exception.Safe</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">SafeEx</span></span><span>
+</span><span id="line-68"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Catch</span></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">Exception</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">displayException</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">fromException</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">toException</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="hs-identifier">Handler</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Handler</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadCatch</span></span><span class="hs-special">,</span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadMask</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">generalBracket</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">mask</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">uninterruptibleMask</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><span class="hs-identifier">MonadThrow</span></span><span class="hs-special">,</span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="hs-identifier">SomeException</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">SomeException</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Catch</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ex</span></span><span>
+</span><span id="line-77"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Dispatch.Static.html"><span class="hs-identifier">Effectful.Dispatch.Static</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unEff"><span class="hs-identifier">unEff</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff"><span class="hs-identifier">unsafeEff</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier">unsafeEff_</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Conc.Sync</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Sync</span></span><span>
+</span><span id="line-80"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.IO.Exception</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">IOErrorType</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">InvalidArgument</span></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">IOException</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">IOError</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Stack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">CallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">withFrozenCallStack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Exit</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ExitCode</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ExitFailure</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ExitSuccess</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-85"></span><span class="hs-comment">--                           MonadGlobalException                            --</span><span>
+</span><span id="line-86"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-87"></span><span>
+</span><span id="line-88"></span><span class="hs-comment">-- NOTE: We have kept the typeclass as we are __not__ providing our own</span><span>
+</span><span id="line-89"></span><span class="hs-comment">-- exception machinery; Eff already has instances for MonadThrow, etc.</span><span>
+</span><span id="line-90"></span><span class="hs-comment">-- But we could have an effect for MonadGlobalException...should we?</span><span>
+</span><span id="line-91"></span><span class="hs-comment">--</span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- The typeclass is arguably more consistent, since Eff can use exceptions at</span><span>
+</span><span id="line-93"></span><span class="hs-comment">-- any time. It might be strange if we could throw/catch/mask at any point,</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- but cannot set the global handlers.</span><span>
+</span><span id="line-95"></span><span>
+</span><span id="line-96"></span><span class="hs-comment">-- | Effect for global exception mechanisms.</span><span>
+</span><span id="line-97"></span><span class="hs-comment">--</span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-99"></span><span class="hs-keyword">class</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Monad</span></span><span> </span><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadGlobalException"><span class="annot"><a href="Effectful.Exception.html#MonadGlobalException"><span class="hs-identifier hs-var">MonadGlobalException</span></a></span></span><span> </span><span id="local-6989586621679040736"><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-comment">-- | Lifted 'Sync.setUncaughtExceptionHandler'.</span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-comment">--</span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-103"></span><span>  </span><span id="setUncaughtExceptionHandler"><span class="annot"><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-identifier hs-type">setUncaughtExceptionHandler</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">SomeException</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span>  </span><span class="hs-comment">-- | Lifted 'Sync.getUncaughtExceptionHandler'.</span><span>
+</span><span id="line-106"></span><span>  </span><span class="hs-comment">--</span><span>
+</span><span id="line-107"></span><span>  </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-108"></span><span>  </span><span id="getUncaughtExceptionHandler"><span class="annot"><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-identifier hs-type">getUncaughtExceptionHandler</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">SomeException</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040736"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-109"></span><span>
+</span><span id="line-110"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-111"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Effectful.Exception.html#MonadGlobalException"><span class="hs-identifier hs-type">MonadGlobalException</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-112"></span><span>  </span><span id="local-6989586621679040854"><span class="annot"><span class="annottext">setUncaughtExceptionHandler :: (SomeException -&gt; IO ()) -&gt; IO ()
+</span><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-identifier hs-var hs-var hs-var hs-var">setUncaughtExceptionHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(SomeException -&gt; IO ()) -&gt; IO ()
+</span><span class="hs-identifier hs-var">Sync.setUncaughtExceptionHandler</span></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-pragma hs-type">setUncaughtExceptionHandler</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span>  </span><span id="local-6989586621679040856"><span class="annot"><span class="annottext">getUncaughtExceptionHandler :: IO (SomeException -&gt; IO ())
+</span><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-identifier hs-var hs-var hs-var hs-var">getUncaughtExceptionHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO (SomeException -&gt; IO ())
+</span><span class="hs-identifier hs-var">Sync.getUncaughtExceptionHandler</span></span><span>
+</span><span id="line-116"></span><span>  </span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-pragma hs-type">getUncaughtExceptionHandler</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-117"></span><span>
+</span><span id="line-118"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-119"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679040742"><span class="annot"><a href="Effectful.Exception.html#MonadGlobalException"><span class="hs-identifier hs-type">MonadGlobalException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040742"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-120"></span><span>  </span><span id="local-6989586621679040865"><span class="annot"><span class="annottext">setUncaughtExceptionHandler :: (SomeException -&gt; Eff es ()) -&gt; Eff es ()
+</span><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-identifier hs-var hs-var hs-var hs-var">setUncaughtExceptionHandler</span></a></span></span><span> </span><span id="local-6989586621679040866"><span class="annot"><span class="annottext">SomeException -&gt; Eff es ()
+</span><a href="#local-6989586621679040866"><span class="hs-identifier hs-var">setter</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Env es -&gt; IO ()) -&gt; Eff es ()
+forall (es :: [Effect]) a. (Env es -&gt; IO a) -&gt; Eff es a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff"><span class="hs-identifier hs-var">unsafeEff</span></a></span><span> </span><span class="annot"><span class="annottext">((Env es -&gt; IO ()) -&gt; Eff es ()) -&gt; (Env es -&gt; IO ()) -&gt; Eff es ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679040867"><span class="annot"><span class="annottext">Env es
+</span><a href="#local-6989586621679040867"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-121"></span><span>    </span><span class="annot"><span class="annottext">(SomeException -&gt; IO ()) -&gt; IO ()
+forall (m :: * -&gt; *).
+MonadGlobalException m =&gt;
+(SomeException -&gt; m ()) -&gt; m ()
+</span><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-identifier hs-var">setUncaughtExceptionHandler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679040868"><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621679040868"><span class="hs-identifier hs-var">someEx</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Eff es () -&gt; Env es -&gt; IO ()
+forall (es :: [Effect]) a. Eff es a -&gt; Env es -&gt; IO a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unEff"><span class="hs-identifier hs-var">unEff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SomeException -&gt; Eff es ()
+</span><a href="#local-6989586621679040866"><span class="hs-identifier hs-var">setter</span></a></span><span> </span><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621679040868"><span class="hs-identifier hs-var">someEx</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Env es
+</span><a href="#local-6989586621679040867"><span class="hs-identifier hs-var">env</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#setUncaughtExceptionHandler"><span class="hs-pragma hs-type">setUncaughtExceptionHandler</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-123"></span><span>
+</span><span id="line-124"></span><span>  </span><span id="local-6989586621679040873"><span class="annot"><span class="annottext">getUncaughtExceptionHandler :: Eff es (SomeException -&gt; Eff es ())
+</span><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-identifier hs-var hs-var hs-var hs-var">getUncaughtExceptionHandler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-125"></span><span>    </span><span class="annot"><span class="annottext">IO (SomeException -&gt; Eff es ())
+-&gt; Eff es (SomeException -&gt; Eff es ())
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (SomeException -&gt; Eff es ())
+ -&gt; Eff es (SomeException -&gt; Eff es ()))
+-&gt; IO (SomeException -&gt; Eff es ())
+-&gt; Eff es (SomeException -&gt; Eff es ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-126"></span><span>      </span><span class="annot"><span class="annottext">IO (SomeException -&gt; IO ())
+forall (m :: * -&gt; *).
+MonadGlobalException m =&gt;
+m (SomeException -&gt; m ())
+</span><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-identifier hs-var">getUncaughtExceptionHandler</span></a></span><span> </span><span class="annot"><span class="annottext">IO (SomeException -&gt; IO ())
+-&gt; ((SomeException -&gt; IO ()) -&gt; IO (SomeException -&gt; Eff es ()))
+-&gt; IO (SomeException -&gt; Eff es ())
+forall a b. IO a -&gt; (a -&gt; IO b) -&gt; IO b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679040874"><span class="annot"><span class="annottext">SomeException -&gt; IO ()
+</span><a href="#local-6989586621679040874"><span class="hs-identifier hs-var">handler</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SomeException -&gt; Eff es ()) -&gt; IO (SomeException -&gt; Eff es ())
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (SomeException -&gt; IO ()) -&gt; SomeException -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SomeException -&gt; IO ()
+</span><a href="#local-6989586621679040874"><span class="hs-identifier hs-var">handler</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>  </span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#getUncaughtExceptionHandler"><span class="hs-pragma hs-type">getUncaughtExceptionHandler</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-130"></span><span class="hs-comment">--                                 Exceptions                                --</span><span>
+</span><span id="line-131"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-132"></span><span>
+</span><span id="line-133"></span><span class="hs-comment">-- $basics</span><span>
+</span><span id="line-134"></span><span class="hs-comment">-- The functionality here is a mix of @exceptions@ and @safe-exceptions@.</span><span>
+</span><span id="line-135"></span><span class="hs-comment">-- On the one hand, we reuse @exceptions@' typeclass hierarchy. On the other</span><span>
+</span><span id="line-136"></span><span class="hs-comment">-- hand, the functions we export (e.g. `throwM`, `catch`) are reimplemented</span><span>
+</span><span id="line-137"></span><span class="hs-comment">-- with @safe-exceptions@' philosophy: by default, do not throw or catch</span><span>
+</span><span id="line-138"></span><span class="hs-comment">-- async exceptions. The only reason we do not directly export all</span><span>
+</span><span id="line-139"></span><span class="hs-comment">-- @safe-exceptions@' functions is due to them missing `HasCallStack`</span><span>
+</span><span id="line-140"></span><span class="hs-comment">-- constraints.</span><span>
+</span><span id="line-141"></span><span>
+</span><span id="line-142"></span><span class="hs-comment">-- | Run an action only if an exception is thrown in the main action. The</span><span>
+</span><span id="line-143"></span><span class="hs-comment">-- exception is not caught, simply rethrown.</span><span>
+</span><span id="line-144"></span><span class="hs-comment">--</span><span>
+</span><span id="line-145"></span><span class="hs-comment">-- /NOTE/ The action is only run if an /exception/ is thrown. If the monad</span><span>
+</span><span id="line-146"></span><span class="hs-comment">-- supports other ways of aborting the computation, the action won't run if</span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- those other kinds of errors are thrown. See 'onError'.</span><span>
+</span><span id="line-148"></span><span class="hs-comment">--</span><span>
+</span><span id="line-149"></span><span class="hs-comment">-- /NOTE/ This is __not__ the @onException@ re-exported from either</span><span>
+</span><span id="line-150"></span><span class="hs-comment">-- @exceptions@ or @safe-exceptions@. Why? The @exceptions@ variant reuses its</span><span>
+</span><span id="line-151"></span><span class="hs-comment">-- @catch@, which does not have the async exception behavior we want</span><span>
+</span><span id="line-152"></span><span class="hs-comment">-- (i.e. do not catch async exceptions). The @safe-exceptions@ version, on the</span><span>
+</span><span id="line-153"></span><span class="hs-comment">-- other hand, use its bracket functions, meaning it performs</span><span>
+</span><span id="line-154"></span><span class="hs-comment">-- @uninterruptibleMask@, which we also do not want.</span><span>
+</span><span id="line-155"></span><span class="hs-comment">--</span><span>
+</span><span id="line-156"></span><span class="hs-comment">-- Hence this version, which is based on 'catchAny' i.e. it does not catch</span><span>
+</span><span id="line-157"></span><span class="hs-comment">-- any asynchronous exceptions, nor does it invoke any masking.</span><span>
+</span><span id="line-158"></span><span class="hs-comment">--</span><span>
+</span><span id="line-159"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-160"></span><span class="annot"><a href="Effectful.Exception.html#onException"><span class="hs-identifier hs-type">onException</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679040762"><span class="annot"><a href="#local-6989586621679040762"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621679040764"><span class="annot"><a href="#local-6989586621679040764"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621679040765"><span class="annot"><a href="#local-6989586621679040765"><span class="hs-identifier hs-type">b</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadCatch</span></span><span> </span><span class="annot"><a href="#local-6989586621679040762"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040762"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040764"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040762"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040765"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040762"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040764"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-161"></span><span id="onException"><span class="annot"><span class="annottext">onException :: forall (m :: * -&gt; *) a b.
+(HasCallStack, MonadCatch m) =&gt;
+m a -&gt; m b -&gt; m a
+</span><a href="Effectful.Exception.html#onException"><span class="hs-identifier hs-var hs-var">onException</span></a></span></span><span> </span><span id="local-6989586621679040892"><span class="annot"><span class="annottext">m a
+</span><a href="#local-6989586621679040892"><span class="hs-identifier hs-var">action</span></a></span></span><span> </span><span id="local-6989586621679040893"><span class="annot"><span class="annottext">m b
+</span><a href="#local-6989586621679040893"><span class="hs-identifier hs-var">handler</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-162"></span><span>  </span><span class="annot"><span class="annottext">(HasCallStack =&gt; m a -&gt; (SomeException -&gt; m a) -&gt; m a)
+-&gt; m a -&gt; (SomeException -&gt; m a) -&gt; m a
+forall a. HasCallStack =&gt; (HasCallStack =&gt; a) -&gt; a
+</span><span class="hs-identifier hs-var">withFrozenCallStack</span></span><span> </span><span class="annot"><span class="annottext">m a -&gt; (SomeException -&gt; m a) -&gt; m a
+HasCallStack =&gt; m a -&gt; (SomeException -&gt; m a) -&gt; m a
+forall (m :: * -&gt; *) a.
+(HasCallStack, MonadCatch m) =&gt;
+m a -&gt; (SomeException -&gt; m a) -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#catchAny"><span class="hs-identifier hs-var">SafeEx.catchAny</span></a></span><span> </span><span class="annot"><span class="annottext">m a
+</span><a href="#local-6989586621679040892"><span class="hs-identifier hs-var">action</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679040898"><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621679040898"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">m b
+</span><a href="#local-6989586621679040893"><span class="hs-identifier hs-var">handler</span></a></span><span> </span><span class="annot"><span class="annottext">m b -&gt; m a -&gt; m a
+forall a b. m a -&gt; m b -&gt; m b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f b -&gt; f b
+</span><span class="hs-operator hs-var">*&gt;</span></span><span> </span><span class="annot"><span class="annottext">SomeException -&gt; m a
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">SafeEx.throwM</span></a></span><span> </span><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621679040898"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-163"></span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#onException"><span class="hs-pragma hs-type">onException</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-164"></span><span>
+</span><span id="line-165"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-166"></span><span class="hs-comment">--                                    Exit                                   --</span><span>
+</span><span id="line-167"></span><span class="hs-comment">-------------------------------------------------------------------------------</span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span class="hs-comment">-- $exit</span><span>
+</span><span id="line-170"></span><span class="hs-comment">-- These functions represent 'System.Exit'. 'System.Exit.die' can be found</span><span>
+</span><span id="line-171"></span><span class="hs-comment">-- in &quot;Effects.FileSystem.HandleWriter&quot;.</span><span>
+</span><span id="line-172"></span><span>
+</span><span id="line-173"></span><span class="hs-comment">-- | The computation 'exitFailure' is equivalent to</span><span>
+</span><span id="line-174"></span><span class="hs-comment">-- 'exitWith' @(@'ExitFailure' /exitfail/@)@,</span><span>
+</span><span id="line-175"></span><span class="hs-comment">-- where /exitfail/ is implementation-dependent.</span><span>
+</span><span id="line-176"></span><span class="hs-comment">--</span><span>
+</span><span id="line-177"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-178"></span><span id="local-6989586621679040781"><span id="local-6989586621679040782"><span class="annot"><a href="Effectful.Exception.html#exitFailure"><span class="hs-identifier hs-type">exitFailure</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">MonadThrow</span></span><span> </span><span class="annot"><a href="#local-6989586621679040781"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040781"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040782"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-179"></span><span id="exitFailure"><span class="annot"><span class="annottext">exitFailure :: forall (m :: * -&gt; *) a. MonadThrow m =&gt; m a
+</span><a href="Effectful.Exception.html#exitFailure"><span class="hs-identifier hs-var hs-var">exitFailure</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExitCode -&gt; m a
+forall (m :: * -&gt; *) a. MonadThrow m =&gt; ExitCode -&gt; m a
+</span><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier hs-var">exitWith</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int -&gt; ExitCode
+</span><span class="hs-identifier hs-var">ExitFailure</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span>
+</span><span id="line-180"></span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#exitFailure"><span class="hs-pragma hs-type">exitFailure</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-181"></span><span>
+</span><span id="line-182"></span><span class="hs-comment">-- | The computation 'exitSuccess' is equivalent to</span><span>
+</span><span id="line-183"></span><span class="hs-comment">-- 'exitWith' 'ExitSuccess', It terminates the program</span><span>
+</span><span id="line-184"></span><span class="hs-comment">-- successfully.</span><span>
+</span><span id="line-185"></span><span class="hs-comment">--</span><span>
+</span><span id="line-186"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-187"></span><span id="local-6989586621679040901"><span id="local-6989586621679040902"><span class="annot"><a href="Effectful.Exception.html#exitSuccess"><span class="hs-identifier hs-type">exitSuccess</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">MonadThrow</span></span><span> </span><span class="annot"><a href="#local-6989586621679040901"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040901"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040902"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-188"></span><span id="exitSuccess"><span class="annot"><span class="annottext">exitSuccess :: forall (m :: * -&gt; *) a. MonadThrow m =&gt; m a
+</span><a href="Effectful.Exception.html#exitSuccess"><span class="hs-identifier hs-var hs-var">exitSuccess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExitCode -&gt; m a
+forall (m :: * -&gt; *) a. MonadThrow m =&gt; ExitCode -&gt; m a
+</span><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier hs-var">exitWith</span></a></span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><span class="hs-identifier hs-var">ExitSuccess</span></span><span>
+</span><span id="line-189"></span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#exitSuccess"><span class="hs-pragma hs-type">exitSuccess</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-190"></span><span>
+</span><span id="line-191"></span><span class="hs-comment">-- | Computation 'exitWith' @code@ throws 'ExitCode' @code@.</span><span>
+</span><span id="line-192"></span><span class="hs-comment">-- Normally this terminates the program, returning @code@ to the</span><span>
+</span><span id="line-193"></span><span class="hs-comment">-- program's caller.</span><span>
+</span><span id="line-194"></span><span class="hs-comment">--</span><span>
+</span><span id="line-195"></span><span class="hs-comment">-- On program termination, the standard 'Handle's 'stdout' and</span><span>
+</span><span id="line-196"></span><span class="hs-comment">-- 'stderr' are flushed automatically; any other buffered 'Handle's</span><span>
+</span><span id="line-197"></span><span class="hs-comment">-- need to be flushed manually, otherwise the buffered data will be</span><span>
+</span><span id="line-198"></span><span class="hs-comment">-- discarded.</span><span>
+</span><span id="line-199"></span><span class="hs-comment">--</span><span>
+</span><span id="line-200"></span><span class="hs-comment">-- A program that fails in any other way is treated as if it had</span><span>
+</span><span id="line-201"></span><span class="hs-comment">-- called 'exitFailure'.</span><span>
+</span><span id="line-202"></span><span class="hs-comment">-- A program that terminates successfully without calling 'exitWith'</span><span>
+</span><span id="line-203"></span><span class="hs-comment">-- explicitly is treated as if it had called 'exitWith' 'ExitSuccess'.</span><span>
+</span><span id="line-204"></span><span class="hs-comment">--</span><span>
+</span><span id="line-205"></span><span class="hs-comment">-- As an 'ExitCode' is not an 'IOError', 'exitWith' bypasses</span><span>
+</span><span id="line-206"></span><span class="hs-comment">-- the error handling in the 'IO' monad and cannot be intercepted by</span><span>
+</span><span id="line-207"></span><span class="hs-comment">-- 'catch' from the &quot;Prelude&quot;. However it is a 'Control.Exception.SomeException', and can</span><span>
+</span><span id="line-208"></span><span class="hs-comment">-- be caught using the functions of &quot;Control.Exception&quot;. This means</span><span>
+</span><span id="line-209"></span><span class="hs-comment">-- that cleanup computations added with 'Control.Exception.bracket'</span><span>
+</span><span id="line-210"></span><span class="hs-comment">-- (from &quot;Control.Exception&quot;) are also executed properly on 'exitWith'.</span><span>
+</span><span id="line-211"></span><span class="hs-comment">--</span><span>
+</span><span id="line-212"></span><span class="hs-comment">-- Note: in GHC, 'exitWith' should be called from the main program</span><span>
+</span><span id="line-213"></span><span class="hs-comment">-- thread in order to exit the process. When called from another</span><span>
+</span><span id="line-214"></span><span class="hs-comment">-- thread, 'exitWith' will throw an 'ExitException' as normal, but the</span><span>
+</span><span id="line-215"></span><span class="hs-comment">-- exception will not cause the process itself to exit.</span><span>
+</span><span id="line-216"></span><span class="hs-comment">--</span><span>
+</span><span id="line-217"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-218"></span><span id="local-6989586621679040786"><span id="local-6989586621679040787"><span class="annot"><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier hs-type">exitWith</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">MonadThrow</span></span><span> </span><span class="annot"><a href="#local-6989586621679040786"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ExitCode</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679040786"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679040787"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-219"></span><span id="exitWith"><span class="annot"><span class="annottext">exitWith :: forall (m :: * -&gt; *) a. MonadThrow m =&gt; ExitCode -&gt; m a
+</span><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier hs-var hs-var">exitWith</span></a></span></span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><span class="hs-identifier hs-var">ExitSuccess</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExitCode -&gt; m a
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">SafeEx.throwM</span></a></span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><span class="hs-identifier hs-var">ExitSuccess</span></span><span>
+</span><span id="line-220"></span><span class="annot"><a href="Effectful.Exception.html#exitWith"><span class="hs-identifier hs-var">exitWith</span></a></span><span> </span><span id="local-6989586621679040925"><span class="annot"><span class="annottext">code :: ExitCode
+</span><a href="#local-6989586621679040925"><span class="hs-identifier hs-var">code</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ExitFailure</span></span><span> </span><span id="local-6989586621679040926"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679040926"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-221"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621679040926"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">/=</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ExitCode -&gt; m a
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">SafeEx.throwM</span></a></span><span> </span><span class="annot"><span class="annottext">ExitCode
+</span><a href="#local-6989586621679040925"><span class="hs-identifier hs-var">code</span></a></span><span>
+</span><span id="line-222"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-223"></span><span>      </span><span class="annot"><span class="annottext">IOException -&gt; m a
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">SafeEx.throwM</span></a></span><span>
+</span><span id="line-224"></span><span>        </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Maybe Handle
+-&gt; IOErrorType
+-&gt; String
+-&gt; String
+-&gt; Maybe CInt
+-&gt; Maybe String
+-&gt; IOException
+</span><span class="hs-identifier hs-var">IOError</span></span><span>
+</span><span id="line-225"></span><span>            </span><span class="annot"><span class="annottext">Maybe Handle
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-226"></span><span>            </span><span class="annot"><span class="annottext">IOErrorType
+</span><span class="hs-identifier hs-var">InvalidArgument</span></span><span>
+</span><span id="line-227"></span><span>            </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;exitWith&quot;</span></span><span>
+</span><span id="line-228"></span><span>            </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;ExitFailure 0&quot;</span></span><span>
+</span><span id="line-229"></span><span>            </span><span class="annot"><span class="annottext">Maybe CInt
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-230"></span><span>            </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-231"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-232"></span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.Exception.html#exitWith"><span class="hs-pragma hs-type">exitWith</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-233"></span><span>
+</span><span id="line-234"></span><span class="hs-comment">-- $masking</span><span>
+</span><span id="line-235"></span><span class="hs-comment">-- This section directly reexports @exceptions@' functions: we favor its</span><span>
+</span><span id="line-236"></span><span class="hs-comment">-- 'mask' over @safe-exceptions@' 'uninterruptibleMask'.</span><span>
+</span><span id="line-237"></span></pre></body></html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621679064775"><span id="local-6989586621679064776"></span></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-redundant-constraints #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.PosixCompat.Utils</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * PathType</span></span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier">PathType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier">displayPathType</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Optics</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeFile"><span class="hs-identifier">_PathTypeFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeDirectory"><span class="hs-identifier">_PathTypeDirectory</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeSymbolicLink"><span class="hs-identifier">_PathTypeSymbolicLink</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeOther"><span class="hs-identifier">_PathTypeOther</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Utils</span></span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#throwPathIOError"><span class="hs-identifier">throwPathIOError</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NFData</span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.String</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">IsString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-effects/dist-newstyle/build/x86_64-linux/ghc-9.6.3/exceptions-effectful-0.1/doc/html/exceptions-effectful/src/Effectful.Exception.html"><span class="hs-identifier">Effectful.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">MonadThrow</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier">throwM</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.IO.Exception</span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">IOErrorType</span></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><span class="hs-identifier">IOException</span></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">IOError</span></span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_description</span></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_errno</span></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_filename</span></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_handle</span></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_location</span></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>        </span><span class="annot"><span class="hs-identifier">ioe_type</span></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Core.html"><span class="hs-identifier">Optics.Core</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#Prism%27"><span class="hs-identifier">Prism'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#prism"><span class="hs-identifier">prism</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- | Path type.</span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-39"></span><span class="hs-keyword">data</span><span> </span><span id="PathType"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-var">PathType</span></a></span></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-41"></span><span>    </span><span id="PathTypeFile"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathTypeFile"><span class="hs-identifier hs-var">PathTypeFile</span></a></span></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-43"></span><span>    </span><span id="PathTypeDirectory"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathTypeDirectory"><span class="hs-identifier hs-var">PathTypeDirectory</span></a></span></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-45"></span><span>    </span><span id="PathTypeSymbolicLink"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathTypeSymbolicLink"><span class="hs-identifier hs-var">PathTypeSymbolicLink</span></a></span></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-47"></span><span>    </span><span id="PathTypeOther"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathTypeOther"><span class="hs-identifier hs-var">PathTypeOther</span></a></span></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-50"></span><span>      </span><span id="local-6989586621679064797"><span id="local-6989586621679064799"><span class="annot"><span class="annottext">PathType
+PathType -&gt; PathType -&gt; Bounded PathType
+forall a. a -&gt; a -&gt; Bounded a
+$cminBound :: PathType
+minBound :: PathType
+$cmaxBound :: PathType
+maxBound :: PathType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Bounded</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-52"></span><span>      </span><span id="local-6989586621679064803"><span id="local-6989586621679064811"><span id="local-6989586621679064817"><span id="local-6989586621679064831"><span id="local-6989586621679064833"><span id="local-6989586621679064837"><span id="local-6989586621679064841"><span id="local-6989586621679064845"><span class="annot"><span class="annottext">Int -&gt; PathType
+PathType -&gt; Int
+PathType -&gt; [PathType]
+PathType -&gt; PathType
+PathType -&gt; PathType -&gt; [PathType]
+PathType -&gt; PathType -&gt; PathType -&gt; [PathType]
+(PathType -&gt; PathType)
+-&gt; (PathType -&gt; PathType)
+-&gt; (Int -&gt; PathType)
+-&gt; (PathType -&gt; Int)
+-&gt; (PathType -&gt; [PathType])
+-&gt; (PathType -&gt; PathType -&gt; [PathType])
+-&gt; (PathType -&gt; PathType -&gt; [PathType])
+-&gt; (PathType -&gt; PathType -&gt; PathType -&gt; [PathType])
+-&gt; Enum PathType
+forall a.
+(a -&gt; a)
+-&gt; (a -&gt; a)
+-&gt; (Int -&gt; a)
+-&gt; (a -&gt; Int)
+-&gt; (a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; [a])
+-&gt; (a -&gt; a -&gt; a -&gt; [a])
+-&gt; Enum a
+$csucc :: PathType -&gt; PathType
+succ :: PathType -&gt; PathType
+$cpred :: PathType -&gt; PathType
+pred :: PathType -&gt; PathType
+$ctoEnum :: Int -&gt; PathType
+toEnum :: Int -&gt; PathType
+$cfromEnum :: PathType -&gt; Int
+fromEnum :: PathType -&gt; Int
+$cenumFrom :: PathType -&gt; [PathType]
+enumFrom :: PathType -&gt; [PathType]
+$cenumFromThen :: PathType -&gt; PathType -&gt; [PathType]
+enumFromThen :: PathType -&gt; PathType -&gt; [PathType]
+$cenumFromTo :: PathType -&gt; PathType -&gt; [PathType]
+enumFromTo :: PathType -&gt; PathType -&gt; [PathType]
+$cenumFromThenTo :: PathType -&gt; PathType -&gt; PathType -&gt; [PathType]
+enumFromThenTo :: PathType -&gt; PathType -&gt; PathType -&gt; [PathType]
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Enum</span></span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-54"></span><span>      </span><span id="local-6989586621679064849"><span id="local-6989586621679064851"><span class="annot"><span class="annottext">PathType -&gt; PathType -&gt; Bool
+(PathType -&gt; PathType -&gt; Bool)
+-&gt; (PathType -&gt; PathType -&gt; Bool) -&gt; Eq PathType
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: PathType -&gt; PathType -&gt; Bool
+== :: PathType -&gt; PathType -&gt; Bool
+$c/= :: PathType -&gt; PathType -&gt; Bool
+/= :: PathType -&gt; PathType -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-56"></span><span>      </span><span id="local-6989586621679064856"><span id="local-6989586621679064858"><span class="annot"><span class="annottext">(forall x. PathType -&gt; Rep PathType x)
+-&gt; (forall x. Rep PathType x -&gt; PathType) -&gt; Generic PathType
+forall x. Rep PathType x -&gt; PathType
+forall x. PathType -&gt; Rep PathType x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. PathType -&gt; Rep PathType x
+from :: forall x. PathType -&gt; Rep PathType x
+$cto :: forall x. Rep PathType x -&gt; PathType
+to :: forall x. Rep PathType x -&gt; PathType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-58"></span><span>      </span><span id="local-6989586621679064864"><span id="local-6989586621679064866"><span id="local-6989586621679064868"><span id="local-6989586621679064872"><span id="local-6989586621679064875"><span id="local-6989586621679064878"><span id="local-6989586621679064881"><span class="annot"><span class="annottext">Eq PathType
+Eq PathType =&gt;
+(PathType -&gt; PathType -&gt; Ordering)
+-&gt; (PathType -&gt; PathType -&gt; Bool)
+-&gt; (PathType -&gt; PathType -&gt; Bool)
+-&gt; (PathType -&gt; PathType -&gt; Bool)
+-&gt; (PathType -&gt; PathType -&gt; Bool)
+-&gt; (PathType -&gt; PathType -&gt; PathType)
+-&gt; (PathType -&gt; PathType -&gt; PathType)
+-&gt; Ord PathType
+PathType -&gt; PathType -&gt; Bool
+PathType -&gt; PathType -&gt; Ordering
+PathType -&gt; PathType -&gt; PathType
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: PathType -&gt; PathType -&gt; Ordering
+compare :: PathType -&gt; PathType -&gt; Ordering
+$c&lt; :: PathType -&gt; PathType -&gt; Bool
+&lt; :: PathType -&gt; PathType -&gt; Bool
+$c&lt;= :: PathType -&gt; PathType -&gt; Bool
+&lt;= :: PathType -&gt; PathType -&gt; Bool
+$c&gt; :: PathType -&gt; PathType -&gt; Bool
+&gt; :: PathType -&gt; PathType -&gt; Bool
+$c&gt;= :: PathType -&gt; PathType -&gt; Bool
+&gt;= :: PathType -&gt; PathType -&gt; Bool
+$cmax :: PathType -&gt; PathType -&gt; PathType
+max :: PathType -&gt; PathType -&gt; PathType
+$cmin :: PathType -&gt; PathType -&gt; PathType
+min :: PathType -&gt; PathType -&gt; PathType
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-60"></span><span>      </span><span id="local-6989586621679064885"><span id="local-6989586621679064887"><span id="local-6989586621679064891"><span class="annot"><span class="annottext">Int -&gt; PathType -&gt; ShowS
+[PathType] -&gt; ShowS
+PathType -&gt; [Char]
+(Int -&gt; PathType -&gt; ShowS)
+-&gt; (PathType -&gt; [Char]) -&gt; ([PathType] -&gt; ShowS) -&gt; Show PathType
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; [Char]) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; PathType -&gt; ShowS
+showsPrec :: Int -&gt; PathType -&gt; ShowS
+$cshow :: PathType -&gt; [Char]
+show :: PathType -&gt; [Char]
+$cshowList :: [PathType] -&gt; ShowS
+showList :: [PathType] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">anyclass</span></span><span>
+</span><span id="line-63"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-64"></span><span>      </span><span id="local-6989586621679064895"><span class="annot"><span class="annottext">PathType -&gt; ()
+(PathType -&gt; ()) -&gt; NFData PathType
+forall a. (a -&gt; ()) -&gt; NFData a
+$crnf :: PathType -&gt; ()
+rnf :: PathType -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">NFData</span></span></span><span>
+</span><span id="line-65"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-68"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeFile"><span class="hs-identifier hs-type">_PathTypeFile</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#Prism%27"><span class="hs-identifier hs-type">Prism'</span></a></span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-type">PathType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span id="_PathTypeFile"><span class="annot"><span class="annottext">_PathTypeFile :: Prism' PathType ()
+</span><a href="Effectful.PosixCompat.Utils.html#_PathTypeFile"><span class="hs-identifier hs-var hs-var">_PathTypeFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-70"></span><span>  </span><span class="annot"><span class="annottext">(() -&gt; PathType)
+-&gt; (PathType -&gt; Either PathType ()) -&gt; Prism' PathType ()
+forall b t s a. (b -&gt; t) -&gt; (s -&gt; Either t a) -&gt; Prism s t a b
+</span><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#prism"><span class="hs-identifier hs-var">prism</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PathType -&gt; () -&gt; PathType
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeFile"><span class="hs-identifier hs-var">PathTypeFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeFile"><span class="hs-identifier hs-var">PathTypeFile</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Either PathType ()
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-74"></span><span>        </span><span id="local-6989586621679064914"><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064914"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">PathType -&gt; Either PathType ()
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064914"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-75"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeFile"><span class="hs-pragma hs-type">_PathTypeFile</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-79"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeDirectory"><span class="hs-identifier hs-type">_PathTypeDirectory</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#Prism%27"><span class="hs-identifier hs-type">Prism'</span></a></span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-type">PathType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span id="_PathTypeDirectory"><span class="annot"><span class="annottext">_PathTypeDirectory :: Prism' PathType ()
+</span><a href="Effectful.PosixCompat.Utils.html#_PathTypeDirectory"><span class="hs-identifier hs-var hs-var">_PathTypeDirectory</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-81"></span><span>  </span><span class="annot"><span class="annottext">(() -&gt; PathType)
+-&gt; (PathType -&gt; Either PathType ()) -&gt; Prism' PathType ()
+forall b t s a. (b -&gt; t) -&gt; (s -&gt; Either t a) -&gt; Prism s t a b
+</span><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#prism"><span class="hs-identifier hs-var">prism</span></a></span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PathType -&gt; () -&gt; PathType
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeDirectory"><span class="hs-identifier hs-var">PathTypeDirectory</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-83"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-84"></span><span>        </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeDirectory"><span class="hs-identifier hs-var">PathTypeDirectory</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Either PathType ()
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-85"></span><span>        </span><span id="local-6989586621679064915"><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064915"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">PathType -&gt; Either PathType ()
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064915"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-86"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeDirectory"><span class="hs-pragma hs-type">_PathTypeDirectory</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-88"></span><span>
+</span><span id="line-89"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-90"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeSymbolicLink"><span class="hs-identifier hs-type">_PathTypeSymbolicLink</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#Prism%27"><span class="hs-identifier hs-type">Prism'</span></a></span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-type">PathType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span id="_PathTypeSymbolicLink"><span class="annot"><span class="annottext">_PathTypeSymbolicLink :: Prism' PathType ()
+</span><a href="Effectful.PosixCompat.Utils.html#_PathTypeSymbolicLink"><span class="hs-identifier hs-var hs-var">_PathTypeSymbolicLink</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><span class="annottext">(() -&gt; PathType)
+-&gt; (PathType -&gt; Either PathType ()) -&gt; Prism' PathType ()
+forall b t s a. (b -&gt; t) -&gt; (s -&gt; Either t a) -&gt; Prism s t a b
+</span><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#prism"><span class="hs-identifier hs-var">prism</span></a></span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PathType -&gt; () -&gt; PathType
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeSymbolicLink"><span class="hs-identifier hs-var">PathTypeSymbolicLink</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-95"></span><span>        </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeSymbolicLink"><span class="hs-identifier hs-var">PathTypeSymbolicLink</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Either PathType ()
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span>        </span><span id="local-6989586621679064916"><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064916"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">PathType -&gt; Either PathType ()
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064916"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-97"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeSymbolicLink"><span class="hs-pragma hs-type">_PathTypeSymbolicLink</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-99"></span><span>
+</span><span id="line-100"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-101"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeOther"><span class="hs-identifier hs-type">_PathTypeOther</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#Prism%27"><span class="hs-identifier hs-type">Prism'</span></a></span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-type">PathType</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-102"></span><span id="_PathTypeOther"><span class="annot"><span class="annottext">_PathTypeOther :: Prism' PathType ()
+</span><a href="Effectful.PosixCompat.Utils.html#_PathTypeOther"><span class="hs-identifier hs-var hs-var">_PathTypeOther</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-103"></span><span>  </span><span class="annot"><span class="annottext">(() -&gt; PathType)
+-&gt; (PathType -&gt; Either PathType ()) -&gt; Prism' PathType ()
+forall b t s a. (b -&gt; t) -&gt; (s -&gt; Either t a) -&gt; Prism s t a b
+</span><a href="file:///nix/store/yiyd960cyn3zg283hgrwi5m0ilr7bcpb-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Prism.html#prism"><span class="hs-identifier hs-var">prism</span></a></span><span>
+</span><span id="line-104"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PathType -&gt; () -&gt; PathType
+forall a b. a -&gt; b -&gt; a
+</span><span class="hs-identifier hs-var">const</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeOther"><span class="hs-identifier hs-var">PathTypeOther</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-106"></span><span>        </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeOther"><span class="hs-identifier hs-var">PathTypeOther</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; Either PathType ()
+forall a b. b -&gt; Either a b
+</span><span class="hs-identifier hs-var">Right</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span>        </span><span id="local-6989586621679064917"><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064917"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">PathType -&gt; Either PathType ()
+forall a b. a -&gt; Either a b
+</span><span class="hs-identifier hs-var">Left</span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="#local-6989586621679064917"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-108"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-109"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#_PathTypeOther"><span class="hs-pragma hs-type">_PathTypeOther</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-110"></span><span>
+</span><span id="line-111"></span><span class="hs-comment">-- | String representation of 'PathType'.</span><span>
+</span><span id="line-112"></span><span class="hs-comment">--</span><span>
+</span><span id="line-113"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-114"></span><span id="local-6989586621679064757"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier hs-type">displayPathType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">IsString</span></span><span> </span><span class="annot"><a href="#local-6989586621679064757"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#PathType"><span class="hs-identifier hs-type">PathType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679064757"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-115"></span><span id="displayPathType"><span class="annot"><span class="annottext">displayPathType :: forall a. IsString a =&gt; PathType -&gt; a
+</span><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier hs-var hs-var">displayPathType</span></a></span></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeFile"><span class="hs-identifier hs-var">PathTypeFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-string">&quot;file&quot;</span></span><span>
+</span><span id="line-116"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier hs-var">displayPathType</span></a></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeDirectory"><span class="hs-identifier hs-var">PathTypeDirectory</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-string">&quot;directory&quot;</span></span><span>
+</span><span id="line-117"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier hs-var">displayPathType</span></a></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeSymbolicLink"><span class="hs-identifier hs-var">PathTypeSymbolicLink</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-string">&quot;symlink&quot;</span></span><span>
+</span><span id="line-118"></span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#displayPathType"><span class="hs-identifier hs-var">displayPathType</span></a></span><span> </span><span class="annot"><span class="annottext">PathType
+</span><a href="Effectful.PosixCompat.Utils.html#PathTypeOther"><span class="hs-identifier hs-var">PathTypeOther</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-string">&quot;other&quot;</span></span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span class="hs-comment">-- | Helper for throwing 'IOException'.</span><span>
+</span><span id="line-121"></span><span class="hs-comment">--</span><span>
+</span><span id="line-122"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-123"></span><span id="local-6989586621679064759"><span id="local-6989586621679064762"><span class="annot"><a href="Effectful.PosixCompat.Utils.html#throwPathIOError"><span class="hs-identifier hs-type">throwPathIOError</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadThrow</span></span><span> </span><span class="annot"><a href="#local-6989586621679064759"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-125"></span><span>  </span><span class="annot"><span class="hs-comment">-- | Path upon which the IO operation failed.</span></span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-127"></span><span>  </span><span class="annot"><span class="hs-comment">-- | String location (e.g. function name).</span></span><span>
+</span><span id="line-128"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-129"></span><span>  </span><span class="annot"><span class="hs-comment">-- | Type of exception.</span></span><span>
+</span><span id="line-130"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">IOErrorType</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-131"></span><span>  </span><span class="annot"><span class="hs-comment">-- | Description.</span></span><span>
+</span><span id="line-132"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-133"></span><span>  </span><span class="annot"><a href="#local-6989586621679064759"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679064762"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-134"></span><span id="throwPathIOError"><span class="annot"><span class="annottext">throwPathIOError :: forall (m :: * -&gt; *) a.
+(HasCallStack, MonadThrow m) =&gt;
+[Char] -&gt; [Char] -&gt; IOErrorType -&gt; [Char] -&gt; m a
+</span><a href="Effectful.PosixCompat.Utils.html#throwPathIOError"><span class="hs-identifier hs-var hs-var">throwPathIOError</span></a></span></span><span> </span><span id="local-6989586621679064931"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064931"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span id="local-6989586621679064932"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064932"><span class="hs-identifier hs-var">loc</span></a></span></span><span> </span><span id="local-6989586621679064933"><span class="annot"><span class="annottext">IOErrorType
+</span><a href="#local-6989586621679064933"><span class="hs-identifier hs-var">ty</span></a></span></span><span> </span><span id="local-6989586621679064934"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064934"><span class="hs-identifier hs-var">desc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-135"></span><span>  </span><span class="annot"><span class="annottext">IOException -&gt; m a
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">throwM</span></a></span><span> </span><span class="annot"><span class="annottext">(IOException -&gt; m a) -&gt; IOException -&gt; m a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-136"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">IOError</span></span><span>
+</span><span id="line-137"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">ioe_handle :: Maybe Handle
+</span><span class="hs-identifier hs-var">ioe_handle</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe Handle
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">,</span><span>
+</span><span id="line-138"></span><span>        </span><span class="annot"><span class="annottext">ioe_type :: IOErrorType
+</span><span class="hs-identifier hs-var">ioe_type</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IOErrorType
+</span><a href="#local-6989586621679064933"><span class="hs-identifier hs-var">ty</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-139"></span><span>        </span><span class="annot"><span class="annottext">ioe_location :: [Char]
+</span><span class="hs-identifier hs-var">ioe_location</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064932"><span class="hs-identifier hs-var">loc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-140"></span><span>        </span><span class="annot"><span class="annottext">ioe_description :: [Char]
+</span><span class="hs-identifier hs-var">ioe_description</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064934"><span class="hs-identifier hs-var">desc</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-141"></span><span>        </span><span class="annot"><span class="annottext">ioe_errno :: Maybe CInt
+</span><span class="hs-identifier hs-var">ioe_errno</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe CInt
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span class="hs-special">,</span><span>
+</span><span id="line-142"></span><span>        </span><span class="annot"><span class="annottext">ioe_filename :: Maybe [Char]
+</span><span class="hs-identifier hs-var">ioe_filename</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Maybe [Char]
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621679064931"><span class="hs-identifier hs-var">path</span></a></span><span>
+</span><span id="line-143"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-144"></span><span class="hs-pragma">{-# INLINEABLE</span><span> </span><span class="annot"><a href="Effectful.PosixCompat.Utils.html#throwPathIOError"><span class="hs-pragma hs-type">throwPathIOError</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-145"></span></pre></body></html>

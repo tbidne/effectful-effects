@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# OPTIONS_GHC -Wno-redundant-constraints #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Provides a static effect for reading files.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.FileSystem.FileReader.Static</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Effect</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier">FileReaderStatic</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier">readBinaryFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Handlers</span></span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#runFileReaderStaticIO"><span class="hs-identifier">runFileReaderStaticIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><span class="hs-comment">-- * UTF-8 Utils</span></span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8"><span class="hs-identifier">readFileUtf8</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8Lenient"><span class="hs-identifier">readFileUtf8Lenient</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8ThrowM"><span class="hs-identifier">readFileUtf8ThrowM</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#decodeUtf8ThrowM"><span class="hs-identifier">decodeUtf8ThrowM</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Re-exports</span></span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><span class="hs-identifier">UnicodeException</span></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&gt;=&gt;)</span></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TEnc</span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding.Error</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">UnicodeException</span></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#Dispatch"><span class="hs-identifier">Dispatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#Static"><span class="hs-identifier">Static</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier">DispatchOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier">Effect</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier">IOE</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator">(:&gt;)</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Dispatch.Static.html"><span class="hs-identifier">Effectful.Dispatch.Static</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#SideEffects"><span class="hs-identifier">SideEffects</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#WithSideEffects"><span class="hs-identifier">WithSideEffects</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#StaticRep"><span class="hs-identifier">StaticRep</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#evalStaticRep"><span class="hs-identifier">evalStaticRep</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier">unsafeEff_</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-effects/dist-newstyle/build/x86_64-linux/ghc-9.6.3/exceptions-effectful-0.1/doc/html/exceptions-effectful/src/Effectful.Exception.html"><span class="hs-identifier">Effectful.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier">throwM</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Utils.html"><span class="hs-identifier">Effectful.FileSystem.Utils</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Utils.html#readBinaryFileIO"><span class="hs-identifier">readBinaryFileIO</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Utils.html#%3E.%3E"><span class="hs-operator">(&gt;.&gt;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Utils.html"><span class="hs-identifier">Effectful.FileSystem.Utils</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Utils</span></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- | Static effect for reading files.</span><span>
+</span><span id="line-52"></span><span class="hs-comment">--</span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-54"></span><span class="hs-keyword">data</span><span> </span><span id="FileReaderStatic"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-var">FileReaderStatic</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier hs-type">Effect</span></a></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">type</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="DispatchOf"><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier hs-var">DispatchOf</span></a></span></span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#Static"><span class="hs-identifier hs-type">Static</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Env.html#WithSideEffects"><span class="hs-identifier hs-type">WithSideEffects</span></a></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="hs-keyword">data</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="StaticRep"><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#StaticRep"><span class="hs-identifier hs-var">StaticRep</span></a></span></span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MkFileReaderStatic"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#MkFileReaderStatic"><span class="hs-identifier hs-var">MkFileReaderStatic</span></a></span></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-comment">-- | Runs 'FileReaderStatic' in 'IO'.</span><span>
+</span><span id="line-61"></span><span class="hs-comment">--</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-63"></span><span id="local-6989586621679088236"><span id="local-6989586621679088239"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#runFileReaderStaticIO"><span class="hs-identifier hs-type">runFileReaderStaticIO</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier hs-type">IOE</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088236"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><a href="#local-6989586621679088236"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679088239"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-66"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088236"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088239"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-67"></span><span id="runFileReaderStaticIO"><span class="annot"><span class="annottext">runFileReaderStaticIO :: forall (es :: [Effect]) a.
+(IOE :&gt; es) =&gt;
+Eff (FileReaderStatic : es) a -&gt; Eff es a
+</span><a href="Effectful.FileSystem.FileReader.Static.html#runFileReaderStaticIO"><span class="hs-identifier hs-var hs-var">runFileReaderStaticIO</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StaticRep FileReaderStatic
+-&gt; Eff (FileReaderStatic : es) a -&gt; Eff es a
+forall (e :: Effect) (sideEffects :: SideEffects) (es :: [Effect])
+       a.
+(DispatchOf e ~ 'Static sideEffects, MaybeIOE sideEffects es) =&gt;
+StaticRep e -&gt; Eff (e : es) a -&gt; Eff es a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#evalStaticRep"><span class="hs-identifier hs-var">evalStaticRep</span></a></span><span> </span><span class="annot"><span class="annottext">StaticRep FileReaderStatic
+</span><a href="Effectful.FileSystem.FileReader.Static.html#MkFileReaderStatic"><span class="hs-identifier hs-var">MkFileReaderStatic</span></a></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-70"></span><span id="local-6989586621679088257"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier hs-type">readBinaryFile</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088257"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-73"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-74"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088257"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span></span><span>
+</span><span id="line-75"></span><span id="readBinaryFile"><span class="annot"><span class="annottext">readBinaryFile :: forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es ByteString
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier hs-var hs-var">readBinaryFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO ByteString -&gt; Eff es ByteString
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO ByteString -&gt; Eff es ByteString)
+-&gt; (OsPath -&gt; IO ByteString) -&gt; OsPath -&gt; Eff es ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; IO ByteString
+</span><a href="Effectful.FileSystem.Utils.html#readBinaryFileIO"><span class="hs-identifier hs-var">readBinaryFileIO</span></a></span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- | Decodes a 'ByteString' to UTF-8. Can throw 'UnicodeException'.</span><span>
+</span><span id="line-78"></span><span class="hs-comment">--</span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-80"></span><span id="local-6989586621679088266"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#decodeUtf8ThrowM"><span class="hs-identifier hs-type">decodeUtf8ThrowM</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-81"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-82"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088266"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span><span>
+</span><span id="line-83"></span><span id="decodeUtf8ThrowM"><span class="annot"><span class="annottext">decodeUtf8ThrowM :: forall (es :: [Effect]). ByteString -&gt; Eff es Text
+</span><a href="Effectful.FileSystem.FileReader.Static.html#decodeUtf8ThrowM"><span class="hs-identifier hs-var hs-var">decodeUtf8ThrowM</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-84"></span><span>  </span><span class="annot"><span class="annottext">ByteString -&gt; Either UnicodeException Text
+</span><span class="hs-identifier hs-var">TEnc.decodeUtf8'</span></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Either UnicodeException Text)
+-&gt; (Either UnicodeException Text -&gt; Eff es Text)
+-&gt; ByteString
+-&gt; Eff es Text
+forall a b c. (a -&gt; b) -&gt; (b -&gt; c) -&gt; a -&gt; c
+</span><a href="Effectful.FileSystem.Utils.html#%3E.%3E"><span class="hs-operator hs-var">&gt;.&gt;</span></a></span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-85"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Right</span></span><span> </span><span id="local-6989586621679088325"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679088325"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Eff es Text
+forall a. a -&gt; Eff es a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679088325"><span class="hs-identifier hs-var">txt</span></a></span><span>
+</span><span id="line-86"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Left</span></span><span> </span><span id="local-6989586621679088326"><span class="annot"><span class="annottext">UnicodeException
+</span><a href="#local-6989586621679088326"><span class="hs-identifier hs-var">ex</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">UnicodeException -&gt; Eff es Text
+forall (m :: * -&gt; *) e a.
+(HasCallStack, MonadThrow m, Exception e) =&gt;
+e -&gt; m a
+</span><a href="file:///nix/store/j381kxp9vx73m057zmk27cf6d65dr64z-safe-exceptions-0.1.7.4-doc/share/doc/safe-exceptions-0.1.7.4/html/src/Control.Exception.Safe.html#throwM"><span class="hs-identifier hs-var">throwM</span></a></span><span> </span><span class="annot"><span class="annottext">UnicodeException
+</span><a href="#local-6989586621679088326"><span class="hs-identifier hs-var">ex</span></a></span><span>
+</span><span id="line-87"></span><span>
+</span><span id="line-88"></span><span class="hs-comment">-- | Reads a file as UTF-8.</span><span>
+</span><span id="line-89"></span><span class="hs-comment">--</span><span>
+</span><span id="line-90"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-91"></span><span id="local-6989586621679088283"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8"><span class="hs-identifier hs-type">readFileUtf8</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088283"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-94"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088283"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">UnicodeException</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-96"></span><span id="readFileUtf8"><span class="annot"><span class="annottext">readFileUtf8 :: forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es (Either UnicodeException Text)
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8"><span class="hs-identifier hs-var hs-var">readFileUtf8</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Either UnicodeException Text)
+-&gt; Eff es ByteString -&gt; Eff es (Either UnicodeException Text)
+forall a b. (a -&gt; b) -&gt; Eff es a -&gt; Eff es b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either UnicodeException Text
+</span><a href="Effectful.FileSystem.Utils.html#decodeUtf8"><span class="hs-identifier hs-var">Utils.decodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Eff es ByteString -&gt; Eff es (Either UnicodeException Text))
+-&gt; (OsPath -&gt; Eff es ByteString)
+-&gt; OsPath
+-&gt; Eff es (Either UnicodeException Text)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; Eff es ByteString
+forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es ByteString
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier hs-var">readBinaryFile</span></a></span><span>
+</span><span id="line-97"></span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- | Reads a file as UTF-8 in lenient mode.</span><span>
+</span><span id="line-99"></span><span class="hs-comment">--</span><span>
+</span><span id="line-100"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-101"></span><span id="local-6989586621679088289"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8Lenient"><span class="hs-identifier hs-type">readFileUtf8Lenient</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088289"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-104"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-105"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088289"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span><span>
+</span><span id="line-106"></span><span id="readFileUtf8Lenient"><span class="annot"><span class="annottext">readFileUtf8Lenient :: forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es Text
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8Lenient"><span class="hs-identifier hs-var hs-var">readFileUtf8Lenient</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; Text) -&gt; Eff es ByteString -&gt; Eff es Text
+forall a b. (a -&gt; b) -&gt; Eff es a -&gt; Eff es b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+</span><a href="Effectful.FileSystem.Utils.html#decodeUtf8Lenient"><span class="hs-identifier hs-var">Utils.decodeUtf8Lenient</span></a></span><span> </span><span class="annot"><span class="annottext">(Eff es ByteString -&gt; Eff es Text)
+-&gt; (OsPath -&gt; Eff es ByteString) -&gt; OsPath -&gt; Eff es Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; Eff es ByteString
+forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es ByteString
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier hs-var">readBinaryFile</span></a></span><span>
+</span><span id="line-107"></span><span>
+</span><span id="line-108"></span><span class="hs-comment">-- | Decodes a file as UTF-8. Throws 'UnicodeException' for decode errors.</span><span>
+</span><span id="line-109"></span><span class="hs-comment">--</span><span>
+</span><span id="line-110"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-111"></span><span id="local-6989586621679088336"><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8ThrowM"><span class="hs-identifier hs-type">readFileUtf8ThrowM</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.FileReader.Static.html#FileReaderStatic"><span class="hs-identifier hs-type">FileReaderStatic</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088336"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-114"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-115"></span><span>  </span><span class="annot"><a href="file:///nix/store/42hmf3xvbgrm4gk4x67wdz833labyq6x-effectful-core-2.2.2.2-doc/share/doc/effectful-core-2.2.2.2/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679088336"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span><span>
+</span><span id="line-116"></span><span id="readFileUtf8ThrowM"><span class="annot"><span class="annottext">readFileUtf8ThrowM :: forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es Text
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readFileUtf8ThrowM"><span class="hs-identifier hs-var hs-var">readFileUtf8ThrowM</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; Eff es ByteString
+forall (es :: [Effect]).
+(FileReaderStatic :&gt; es) =&gt;
+OsPath -&gt; Eff es ByteString
+</span><a href="Effectful.FileSystem.FileReader.Static.html#readBinaryFile"><span class="hs-identifier hs-var">readBinaryFile</span></a></span><span> </span><span class="annot"><span class="annottext">(OsPath -&gt; Eff es ByteString)
+-&gt; (ByteString -&gt; Eff es Text) -&gt; OsPath -&gt; Eff es Text
+forall (m :: * -&gt; *) a b c.
+Monad m =&gt;
+(a -&gt; m b) -&gt; (b -&gt; m c) -&gt; a -&gt; m c
+</span><span class="hs-operator hs-var">&gt;=&gt;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Eff es Text
+forall (es :: [Effect]). ByteString -&gt; Eff es Text
+</span><a href="Effectful.FileSystem.FileReader.Static.html#decodeUtf8ThrowM"><span class="hs-identifier hs-var">decodeUtf8ThrowM</span></a></span><span>
+</span><span id="line-117"></span></pre></body></html>
