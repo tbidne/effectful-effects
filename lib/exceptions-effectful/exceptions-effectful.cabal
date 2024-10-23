@@ -44,9 +44,16 @@ common common-lang
 
 library
   import:          common-lang
-  exposed-modules: Effectful.Exception
+  exposed-modules:
+    Effectful.Exception
+    Effectful.Exception.Annotation.CallStack.Legacy
+    Effectful.Exception.Annotation.Common
+    Effectful.Exception.Annotation.Utils
+
   build-depends:
     , base             >=4.14.0.0 && <4.21
+    , containers       >=0.6.3.1  && <0.8
+    , deepseq          >=1.4.4.0  && <1.6
     , effectful-core   >=2.2.1.0  && <2.4
     , exceptions       ^>=0.10.4
     , safe-exceptions  ^>=0.1.7.0
