@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Provides Optparse utils.</span><span>
+</span><span id="line-2"></span><span class="hs-comment">--</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Optparse.Utils</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Effectful.Optparse.Utils.html#osPath"><span class="hs-identifier">osPath</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><a href="Effectful.Optparse.Utils.html#validOsPath"><span class="hs-identifier">validOsPath</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/fs-utils-0.1-e372dd9cd77baa6a563dd7032c473a3c70c538a3226981dab13c2716d821a2ce/share/doc/html/src/FileSystem.OsPath.html"><span class="hs-identifier">FileSystem.OsPath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/fs-utils-0.1-e372dd9cd77baa6a563dd7032c473a3c70c538a3226981dab13c2716d821a2ce/share/doc/html/src/FileSystem.OsPath.html"><span class="hs-identifier">FileSystem.OsPath</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">OsPath</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.html"><span class="hs-identifier">Options.Applicative</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.Types.html#ReadM"><span class="hs-identifier">ReadM</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.html"><span class="hs-identifier">Options.Applicative</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">OA</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | 'OsPath' 'OA.Option' reader.</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-19"></span><span class="annot"><a href="Effectful.Optparse.Utils.html#osPath"><span class="hs-identifier hs-type">osPath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.Types.html#ReadM"><span class="hs-identifier hs-type">ReadM</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span>
+</span><span id="line-20"></span><span id="osPath"><span class="annot"><span class="annottext">osPath :: ReadM OsPath
+</span><a href="Effectful.Optparse.Utils.html#osPath"><span class="hs-identifier hs-var hs-var">osPath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadM FilePath
+forall s. IsString s =&gt; ReadM s
+</span><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.Builder.html#str"><span class="hs-identifier hs-var">OA.str</span></a></span><span> </span><span class="annot"><span class="annottext">ReadM FilePath -&gt; (FilePath -&gt; ReadM OsPath) -&gt; ReadM OsPath
+forall a b. ReadM a -&gt; (a -&gt; ReadM b) -&gt; ReadM b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; ReadM OsPath
+forall (m :: * -&gt; *).
+(HasCallStack, MonadFail m) =&gt;
+FilePath -&gt; m OsPath
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/fs-utils-0.1-e372dd9cd77baa6a563dd7032c473a3c70c538a3226981dab13c2716d821a2ce/share/doc/html/src/FileSystem.OsPath.html#encodeFail"><span class="hs-identifier hs-var">OsPath.encodeFail</span></a></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- | 'OsPath' 'OA.Option' reader. This includes validation i.e. fails if the</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- path is considered invalid on the given platform.</span><span>
+</span><span id="line-24"></span><span class="hs-comment">--</span><span>
+</span><span id="line-25"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-26"></span><span class="annot"><a href="Effectful.Optparse.Utils.html#validOsPath"><span class="hs-identifier hs-type">validOsPath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.Types.html#ReadM"><span class="hs-identifier hs-type">ReadM</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span>
+</span><span id="line-27"></span><span id="validOsPath"><span class="annot"><span class="annottext">validOsPath :: ReadM OsPath
+</span><a href="Effectful.Optparse.Utils.html#validOsPath"><span class="hs-identifier hs-var hs-var">validOsPath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ReadM FilePath
+forall s. IsString s =&gt; ReadM s
+</span><a href="file:///nix/store/im8chfsmbfqp38jqzg2z8za190mvd9k4-optparse-applicative-0.18.1.0-doc/share/doc/optparse-applicative-0.18.1.0/html/src/Options.Applicative.Builder.html#str"><span class="hs-identifier hs-var">OA.str</span></a></span><span> </span><span class="annot"><span class="annottext">ReadM FilePath -&gt; (FilePath -&gt; ReadM OsPath) -&gt; ReadM OsPath
+forall a b. ReadM a -&gt; (a -&gt; ReadM b) -&gt; ReadM b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+</span><span class="hs-operator hs-var">&gt;&gt;=</span></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; ReadM OsPath
+forall (m :: * -&gt; *).
+(HasCallStack, MonadFail m) =&gt;
+FilePath -&gt; m OsPath
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/fs-utils-0.1-e372dd9cd77baa6a563dd7032c473a3c70c538a3226981dab13c2716d821a2ce/share/doc/html/src/FileSystem.OsPath.html#encodeValidFail"><span class="hs-identifier hs-var">OsPath.encodeValidFail</span></a></span><span>
+</span><span id="line-28"></span></pre></body></html>

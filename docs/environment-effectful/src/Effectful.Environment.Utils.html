@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-2"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Environment.Utils</span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier">QueryExePath</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NFData</span></span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- | Result of querying for the executable path.</span><span>
+</span><span id="line-11"></span><span class="hs-comment">--</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="QueryExePath"><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier hs-var">QueryExePath</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-comment">-- | If the system does not provide a reliable way to determine the</span><span>
+</span><span id="line-15"></span><span>    </span><span class="hs-comment">-- current executable.</span><span>
+</span><span id="line-16"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-17"></span><span>    </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-18"></span><span>    </span><span id="NoQuery"><span class="annot"><a href="Effectful.Environment.Utils.html#NoQuery"><span class="hs-identifier hs-var">NoQuery</span></a></span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | The result of querying the executable name.</span><span>
+</span><span id="line-20"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-21"></span><span>    </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-22"></span><span>    </span><span id="QueryResult"><span class="annot"><a href="Effectful.Environment.Utils.html#QueryResult"><span class="hs-identifier hs-var">QueryResult</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>
+</span><span id="line-24"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-25"></span><span>      </span><span id="local-6989586621679066816"><span id="local-6989586621679066821"><span class="annot"><span class="annottext">QueryExePath -&gt; QueryExePath -&gt; Bool
+(QueryExePath -&gt; QueryExePath -&gt; Bool)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; Bool) -&gt; Eq QueryExePath
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: QueryExePath -&gt; QueryExePath -&gt; Bool
+== :: QueryExePath -&gt; QueryExePath -&gt; Bool
+$c/= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+/= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-27"></span><span>      </span><span id="local-6989586621679066829"><span id="local-6989586621679066831"><span class="annot"><span class="annottext">(forall x. QueryExePath -&gt; Rep QueryExePath x)
+-&gt; (forall x. Rep QueryExePath x -&gt; QueryExePath)
+-&gt; Generic QueryExePath
+forall x. Rep QueryExePath x -&gt; QueryExePath
+forall x. QueryExePath -&gt; Rep QueryExePath x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. QueryExePath -&gt; Rep QueryExePath x
+from :: forall x. QueryExePath -&gt; Rep QueryExePath x
+$cto :: forall x. Rep QueryExePath x -&gt; QueryExePath
+to :: forall x. Rep QueryExePath x -&gt; QueryExePath
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-29"></span><span>      </span><span id="local-6989586621679066837"><span id="local-6989586621679066842"><span id="local-6989586621679066846"><span id="local-6989586621679066850"><span id="local-6989586621679066853"><span id="local-6989586621679066856"><span id="local-6989586621679066859"><span class="annot"><span class="annottext">Eq QueryExePath
+Eq QueryExePath =&gt;
+(QueryExePath -&gt; QueryExePath -&gt; Ordering)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; Bool)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; Bool)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; Bool)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; Bool)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; QueryExePath)
+-&gt; (QueryExePath -&gt; QueryExePath -&gt; QueryExePath)
+-&gt; Ord QueryExePath
+QueryExePath -&gt; QueryExePath -&gt; Bool
+QueryExePath -&gt; QueryExePath -&gt; Ordering
+QueryExePath -&gt; QueryExePath -&gt; QueryExePath
+forall a.
+Eq a =&gt;
+(a -&gt; a -&gt; Ordering)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; Bool)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; (a -&gt; a -&gt; a)
+-&gt; Ord a
+$ccompare :: QueryExePath -&gt; QueryExePath -&gt; Ordering
+compare :: QueryExePath -&gt; QueryExePath -&gt; Ordering
+$c&lt; :: QueryExePath -&gt; QueryExePath -&gt; Bool
+&lt; :: QueryExePath -&gt; QueryExePath -&gt; Bool
+$c&lt;= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+&lt;= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+$c&gt; :: QueryExePath -&gt; QueryExePath -&gt; Bool
+&gt; :: QueryExePath -&gt; QueryExePath -&gt; Bool
+$c&gt;= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+&gt;= :: QueryExePath -&gt; QueryExePath -&gt; Bool
+$cmax :: QueryExePath -&gt; QueryExePath -&gt; QueryExePath
+max :: QueryExePath -&gt; QueryExePath -&gt; QueryExePath
+$cmin :: QueryExePath -&gt; QueryExePath -&gt; QueryExePath
+min :: QueryExePath -&gt; QueryExePath -&gt; QueryExePath
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Ord</span></span></span></span></span></span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-31"></span><span>      </span><span id="local-6989586621679066867"><span id="local-6989586621679066874"><span id="local-6989586621679066878"><span class="annot"><span class="annottext">Int -&gt; QueryExePath -&gt; ShowS
+[QueryExePath] -&gt; ShowS
+QueryExePath -&gt; FilePath
+(Int -&gt; QueryExePath -&gt; ShowS)
+-&gt; (QueryExePath -&gt; FilePath)
+-&gt; ([QueryExePath] -&gt; ShowS)
+-&gt; Show QueryExePath
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; FilePath) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; QueryExePath -&gt; ShowS
+showsPrec :: Int -&gt; QueryExePath -&gt; ShowS
+$cshow :: QueryExePath -&gt; FilePath
+show :: QueryExePath -&gt; FilePath
+$cshowList :: [QueryExePath] -&gt; ShowS
+showList :: [QueryExePath] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">anyclass</span></span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-35"></span><span>      </span><span id="local-6989586621679066885"><span class="annot"><span class="annottext">QueryExePath -&gt; ()
+(QueryExePath -&gt; ()) -&gt; NFData QueryExePath
+forall a. (a -&gt; ()) -&gt; NFData a
+$crnf :: QueryExePath -&gt; ()
+rnf :: QueryExePath -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">NFData</span></span></span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span></pre></body></html>

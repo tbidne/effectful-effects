@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">{- ORMOLU_DISABLE -}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- | Dynamic effects for &quot;System.Environment&quot;. For static effects, see</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Environment.html.</span><span>
+</span><span id="line-7"></span><span class="hs-comment">--</span><span>
+</span><span id="line-8"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Environment.Dynamic</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Effect</span></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier">Environment</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#getArgs"><span class="hs-identifier">getArgs</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#getProgName"><span class="hs-identifier">getProgName</span></a></span><span class="hs-special">,</span><span class="hs-cpp">
+#if MIN_VERSION_base(4,17,0)
+</span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#executablePath"><span class="hs-identifier">executablePath</span></a></span><span class="hs-special">,</span><span class="hs-cpp">
+#endif
+</span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#getExecutablePath"><span class="hs-identifier">getExecutablePath</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#getEnv"><span class="hs-identifier">getEnv</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#lookupEnv"><span class="hs-identifier">lookupEnv</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#setEnv"><span class="hs-identifier">setEnv</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#unsetEnv"><span class="hs-identifier">unsetEnv</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#withArgs"><span class="hs-identifier">withArgs</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#withProgName"><span class="hs-identifier">withProgName</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#getEnvironment"><span class="hs-identifier">getEnvironment</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Handlers</span></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#runEnvironment"><span class="hs-identifier">runEnvironment</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Types</span></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier">QueryExePath</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.IO.Class</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">MonadIO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">liftIO</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Environment</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Env</span></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Env.html#Dispatch"><span class="hs-identifier">Dispatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Env.html#Dynamic"><span class="hs-identifier">Dynamic</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier">DispatchOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier">Effect</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier">IOE</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator">(:&gt;)</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html"><span class="hs-identifier">Effectful.Dispatch.Dynamic</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html#interpret"><span class="hs-identifier">interpret</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier">send</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnliftIO"><span class="hs-identifier">localSeqUnliftIO</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.Environment.Utils.html"><span class="hs-identifier">Effectful.Environment.Utils</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier">QueryExePath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Utils.html#NoQuery"><span class="hs-identifier">NoQuery</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryResult"><span class="hs-identifier">QueryResult</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- | Dynamic effects for &quot;System.Environment&quot;.</span><span>
+</span><span id="line-48"></span><span class="hs-comment">--</span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-50"></span><span class="hs-keyword">data</span><span> </span><span id="Environment"><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-var">Environment</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier hs-type">Effect</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-51"></span><span>  </span><span id="local-6989586621679067002"><span id="GetArgs"><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetArgs"><span class="hs-identifier hs-var">GetArgs</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067002"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span></span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621679067005"><span id="GetProgName"><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetProgName"><span class="hs-identifier hs-var">GetProgName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067005"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span class="hs-cpp">
+#if MIN_VERSION_base(4,17,0)
+</span><span>  </span><span id="local-6989586621679067008"><span id="ExecutablePath"><span class="annot"><a href="Effectful.Environment.Dynamic.html#ExecutablePath"><span class="hs-identifier hs-var">ExecutablePath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067008"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier hs-type">QueryExePath</span></a></span><span class="hs-special">)</span></span><span class="hs-cpp">
+#endif
+</span><span>  </span><span id="local-6989586621679067058"><span id="GetExecutablePath"><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetExecutablePath"><span class="hs-identifier hs-var">GetExecutablePath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067058"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span></span><span>
+</span><span id="line-57"></span><span>  </span><span id="local-6989586621679067015"><span id="GetEnv"><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetEnv"><span class="hs-identifier hs-var">GetEnv</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067015"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-58"></span><span>  </span><span id="local-6989586621679067018"><span id="LookupEnv"><span class="annot"><a href="Effectful.Environment.Dynamic.html#LookupEnv"><span class="hs-identifier hs-var">LookupEnv</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067018"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-59"></span><span>  </span><span id="local-6989586621679067021"><span id="SetEnv"><span class="annot"><a href="Effectful.Environment.Dynamic.html#SetEnv"><span class="hs-identifier hs-var">SetEnv</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067021"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621679067024"><span id="UnsetEnv"><span class="annot"><a href="Effectful.Environment.Dynamic.html#UnsetEnv"><span class="hs-identifier hs-var">UnsetEnv</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067024"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-61"></span><span>  </span><span id="local-6989586621679067029"><span id="local-6989586621679067030"><span id="WithArgs"><span class="annot"><a href="Effectful.Environment.Dynamic.html#WithArgs"><span class="hs-identifier hs-var">WithArgs</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067029"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067030"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067029"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067030"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-62"></span><span>  </span><span id="local-6989586621679067033"><span id="WithProgName"><span class="annot"><a href="Effectful.Environment.Dynamic.html#WithProgName"><span class="hs-identifier hs-var">WithProgName</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679067033"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067033"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-63"></span><span>  </span><span id="local-6989586621679067036"><span id="GetEnvironment"><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetEnvironment"><span class="hs-identifier hs-var">GetEnvironment</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067036"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span class="hs-special">]</span></span><span>
+</span><span id="line-64"></span><span>
+</span><span id="line-65"></span><span class="hs-comment">{- ORMOLU_ENABLE -}</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-68"></span><span class="hs-keyword">type</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="DispatchOf"><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier hs-var">DispatchOf</span></a></span></span><span> </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Env.html#Dynamic"><span class="hs-identifier hs-type">Dynamic</span></a></span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span class="hs-comment">{- ORMOLU_DISABLE -}</span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="hs-comment">-- | Runs 'Environment' in 'IO'.</span><span>
+</span><span id="line-73"></span><span class="hs-comment">--</span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-75"></span><span id="local-6989586621679066953"><span id="local-6989586621679066956"><span class="annot"><a href="Effectful.Environment.Dynamic.html#runEnvironment"><span class="hs-identifier hs-type">runEnvironment</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-77"></span><span>    </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier hs-type">IOE</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066953"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><a href="#local-6989586621679066953"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679066956"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-80"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066953"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066956"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-81"></span><span id="runEnvironment"><span class="annot"><span class="annottext">runEnvironment :: forall (es :: [Effect]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (Environment : es) a -&gt; Eff es a
+</span><a href="Effectful.Environment.Dynamic.html#runEnvironment"><span class="hs-identifier hs-var hs-var">runEnvironment</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EffectHandler Environment es
+-&gt; Eff (Environment : es) a -&gt; Eff es a
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic) =&gt;
+EffectHandler e es -&gt; Eff (e : es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html#interpret"><span class="hs-identifier hs-var">interpret</span></a></span><span> </span><span class="annot"><span class="annottext">(EffectHandler Environment es
+ -&gt; Eff (Environment : es) a -&gt; Eff es a)
+-&gt; EffectHandler Environment es
+-&gt; Eff (Environment : es) a
+-&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679067083"><span class="annot"><span class="annottext">LocalEnv localEs es
+</span><a href="#local-6989586621679067083"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-82"></span><span>  </span><span class="annot"><span class="annottext">Environment (Eff localEs) a
+</span><a href="Effectful.Environment.Dynamic.html#GetArgs"><span class="hs-identifier hs-var">GetArgs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; Eff es a
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO a
+IO [String]
+</span><span class="hs-identifier hs-var">Env.getArgs</span></span><span>
+</span><span id="line-83"></span><span>  </span><span class="annot"><span class="annottext">Environment (Eff localEs) a
+</span><a href="Effectful.Environment.Dynamic.html#GetProgName"><span class="hs-identifier hs-var">GetProgName</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; Eff es a
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO a
+IO String
+</span><span class="hs-identifier hs-var">Env.getProgName</span></span><span class="hs-cpp">
+#if MIN_VERSION_base(4,17,0)
+</span><span>  </span><span class="annot"><span class="annottext">Environment (Eff localEs) a
+</span><a href="Effectful.Environment.Dynamic.html#ExecutablePath"><span class="hs-identifier hs-var">ExecutablePath</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-86"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe (IO (Maybe String))
+</span><span class="hs-identifier hs-var">Env.executablePath</span></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-87"></span><span>      </span><span class="annot"><span class="annottext">Maybe (IO (Maybe String))
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; Eff es a
+forall a. a -&gt; Eff es a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><span class="hs-identifier hs-var">pure</span></span><span> </span><span class="annot"><span class="annottext">a
+QueryExePath
+</span><a href="Effectful.Environment.Utils.html#NoQuery"><span class="hs-identifier hs-var">NoQuery</span></a></span><span>
+</span><span id="line-88"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span id="local-6989586621679067098"><span class="annot"><span class="annottext">IO (Maybe String)
+</span><a href="#local-6989586621679067098"><span class="hs-identifier hs-var">mpath</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; Eff es a
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO a -&gt; Eff es a) -&gt; IO a -&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Maybe String -&gt; a
+Maybe String -&gt; QueryExePath
+</span><a href="Effectful.Environment.Utils.html#QueryResult"><span class="hs-identifier hs-var">QueryResult</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe String -&gt; a) -&gt; IO (Maybe String) -&gt; IO a
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-operator hs-var">&lt;$&gt;</span></span><span> </span><span class="annot"><span class="annottext">IO (Maybe String)
+</span><a href="#local-6989586621679067098"><span class="hs-identifier hs-var">mpath</span></a></span><span class="hs-cpp">
+#endif
+</span><span>  </span><span class="annot"><span class="annottext">Environment (Eff localEs) a
+</span><a href="Effectful.Environment.Dynamic.html#GetExecutablePath"><span class="hs-identifier hs-var">GetExecutablePath</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; Eff es a
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO a
+IO String
+</span><span class="hs-identifier hs-var">Env.getExecutablePath</span></span><span>
+</span><span id="line-91"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#GetEnv"><span class="hs-identifier hs-type">GetEnv</span></a></span><span> </span><span id="local-6989586621679067105"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067105"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO String -&gt; Eff es String
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO String -&gt; Eff es String) -&gt; IO String -&gt; Eff es String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO String
+</span><span class="hs-identifier hs-var">Env.getEnv</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067105"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#LookupEnv"><span class="hs-identifier hs-type">LookupEnv</span></a></span><span> </span><span id="local-6989586621679067109"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067109"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO (Maybe String) -&gt; Eff es (Maybe String)
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO (Maybe String) -&gt; Eff es (Maybe String))
+-&gt; IO (Maybe String) -&gt; Eff es (Maybe String)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO (Maybe String)
+</span><span class="hs-identifier hs-var">Env.lookupEnv</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067109"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#SetEnv"><span class="hs-identifier hs-type">SetEnv</span></a></span><span> </span><span id="local-6989586621679067113"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067113"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679067114"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067114"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ()) -&gt; IO () -&gt; Eff es ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; IO ()
+</span><span class="hs-identifier hs-var">Env.setEnv</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067113"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067114"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-94"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#UnsetEnv"><span class="hs-identifier hs-type">UnsetEnv</span></a></span><span> </span><span id="local-6989586621679067118"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067118"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ()) -&gt; IO () -&gt; Eff es ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">Env.unsetEnv</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067118"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#WithArgs"><span class="hs-identifier hs-type">WithArgs</span></a></span><span> </span><span id="local-6989586621679067120"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679067120"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span id="local-6989586621679067121"><span class="annot"><span class="annottext">Eff localEs a
+</span><a href="#local-6989586621679067121"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs es
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+forall (es :: [Effect]) (handlerEs :: [Effect])
+       (localEs :: [Effect]) a.
+(HasCallStack, SharedSuffix es handlerEs, IOE :&gt; es) =&gt;
+LocalEnv localEs handlerEs
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnliftIO"><span class="hs-identifier hs-var">localSeqUnliftIO</span></a></span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs es
+</span><a href="#local-6989586621679067083"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">(((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a)
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679067122"><span class="annot"><span class="annottext">forall r. Eff localEs r -&gt; IO r
+</span><a href="#local-6989586621679067122"><span class="hs-identifier hs-var">runInIO</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-96"></span><span>    </span><span class="annot"><span class="annottext">IO a -&gt; IO a
+forall a. IO a -&gt; IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO a -&gt; IO a) -&gt; IO a -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; IO a -&gt; IO a
+forall a. [String] -&gt; IO a -&gt; IO a
+</span><span class="hs-identifier hs-var">Env.withArgs</span></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679067120"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Eff localEs a -&gt; IO a
+forall r. Eff localEs r -&gt; IO r
+</span><a href="#local-6989586621679067122"><span class="hs-identifier hs-var">runInIO</span></a></span><span> </span><span class="annot"><span class="annottext">Eff localEs a
+</span><a href="#local-6989586621679067121"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-97"></span><span>  </span><span class="annot"><a href="Effectful.Environment.Dynamic.html#WithProgName"><span class="hs-identifier hs-type">WithProgName</span></a></span><span> </span><span id="local-6989586621679067130"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067130"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span id="local-6989586621679067131"><span class="annot"><span class="annottext">Eff localEs ()
+</span><a href="#local-6989586621679067131"><span class="hs-identifier hs-var">m</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs es
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+forall (es :: [Effect]) (handlerEs :: [Effect])
+       (localEs :: [Effect]) a.
+(HasCallStack, SharedSuffix es handlerEs, IOE :&gt; es) =&gt;
+LocalEnv localEs handlerEs
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnliftIO"><span class="hs-identifier hs-var">localSeqUnliftIO</span></a></span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs es
+</span><a href="#local-6989586621679067083"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">(((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a)
+-&gt; ((forall r. Eff localEs r -&gt; IO r) -&gt; IO a) -&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679067132"><span class="annot"><span class="annottext">forall r. Eff localEs r -&gt; IO r
+</span><a href="#local-6989586621679067132"><span class="hs-identifier hs-var">runInIO</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><span class="annottext">IO a -&gt; IO a
+forall a. IO a -&gt; IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">(IO a -&gt; IO a) -&gt; IO a -&gt; IO a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO a -&gt; IO a
+forall a. String -&gt; IO a -&gt; IO a
+</span><span class="hs-identifier hs-var">Env.withProgName</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067130"><span class="hs-identifier hs-var">name</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Eff localEs a -&gt; IO a
+forall r. Eff localEs r -&gt; IO r
+</span><a href="#local-6989586621679067132"><span class="hs-identifier hs-var">runInIO</span></a></span><span> </span><span class="annot"><span class="annottext">Eff localEs a
+Eff localEs ()
+</span><a href="#local-6989586621679067131"><span class="hs-identifier hs-var">m</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-99"></span><span>  </span><span class="annot"><span class="annottext">Environment (Eff localEs) a
+</span><a href="Effectful.Environment.Dynamic.html#GetEnvironment"><span class="hs-identifier hs-var">GetEnvironment</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO a -&gt; Eff es a
+forall a. IO a -&gt; Eff es a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><span class="hs-identifier hs-var">liftIO</span></span><span> </span><span class="annot"><span class="annottext">IO a
+IO [(String, String)]
+</span><span class="hs-identifier hs-var">Env.getEnvironment</span></span><span>
+</span><span id="line-100"></span><span>
+</span><span id="line-101"></span><span class="hs-comment">{- ORMOLU_ENABLE -}</span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span class="hs-comment">-- | Lifted 'Env.getArgs'.</span><span>
+</span><span id="line-104"></span><span class="hs-comment">--</span><span>
+</span><span id="line-105"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-106"></span><span id="local-6989586621679066997"><span class="annot"><a href="Effectful.Environment.Dynamic.html#getArgs"><span class="hs-identifier hs-type">getArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066997"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679066997"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span></span><span>
+</span><span id="line-107"></span><span id="getArgs"><span class="annot"><span class="annottext">getArgs :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+Eff es [String]
+</span><a href="Effectful.Environment.Dynamic.html#getArgs"><span class="hs-identifier hs-var hs-var">getArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) [String] -&gt; Eff es [String]
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) [String]
+forall (m :: * -&gt; *). Environment m [String]
+</span><a href="Effectful.Environment.Dynamic.html#GetArgs"><span class="hs-identifier hs-var">GetArgs</span></a></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span class="hs-comment">-- | Lifted 'Env.getProgName'.</span><span>
+</span><span id="line-110"></span><span class="hs-comment">--</span><span>
+</span><span id="line-111"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-112"></span><span id="local-6989586621679067003"><span class="annot"><a href="Effectful.Environment.Dynamic.html#getProgName"><span class="hs-identifier hs-type">getProgName</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067003"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067003"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-113"></span><span id="getProgName"><span class="annot"><span class="annottext">getProgName :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+Eff es String
+</span><a href="Effectful.Environment.Dynamic.html#getProgName"><span class="hs-identifier hs-var hs-var">getProgName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) String -&gt; Eff es String
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) String
+forall (m :: * -&gt; *). Environment m String
+</span><a href="Effectful.Environment.Dynamic.html#GetProgName"><span class="hs-identifier hs-var">GetProgName</span></a></span><span class="hs-cpp">
+
+#if MIN_VERSION_base(4,17,0)
+</span><span>
+</span><span id="line-117"></span><span class="hs-comment">-- | Lifted 'Env.executablePath'.</span><span>
+</span><span id="line-118"></span><span class="hs-comment">--</span><span>
+</span><span id="line-119"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-120"></span><span id="local-6989586621679067006"><span class="annot"><a href="Effectful.Environment.Dynamic.html#executablePath"><span class="hs-identifier hs-type">executablePath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067006"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067006"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="Effectful.Environment.Utils.html#QueryExePath"><span class="hs-identifier hs-type">QueryExePath</span></a></span></span><span>
+</span><span id="line-121"></span><span id="executablePath"><span class="annot"><span class="annottext">executablePath :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+Eff es QueryExePath
+</span><a href="Effectful.Environment.Dynamic.html#executablePath"><span class="hs-identifier hs-var hs-var">executablePath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) QueryExePath -&gt; Eff es QueryExePath
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) QueryExePath
+forall (m :: * -&gt; *). Environment m QueryExePath
+</span><a href="Effectful.Environment.Dynamic.html#ExecutablePath"><span class="hs-identifier hs-var">ExecutablePath</span></a></span><span class="hs-cpp">
+
+#endif
+</span><span>
+</span><span id="line-125"></span><span class="hs-comment">-- | Lifted 'Env.getExecutablePath'.</span><span>
+</span><span id="line-126"></span><span class="hs-comment">--</span><span>
+</span><span id="line-127"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-128"></span><span id="local-6989586621679067158"><span class="annot"><a href="Effectful.Environment.Dynamic.html#getExecutablePath"><span class="hs-identifier hs-type">getExecutablePath</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067158"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067158"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span></span><span>
+</span><span id="line-129"></span><span id="getExecutablePath"><span class="annot"><span class="annottext">getExecutablePath :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+Eff es String
+</span><a href="Effectful.Environment.Dynamic.html#getExecutablePath"><span class="hs-identifier hs-var hs-var">getExecutablePath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) String -&gt; Eff es String
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) String
+forall (m :: * -&gt; *). Environment m String
+</span><a href="Effectful.Environment.Dynamic.html#GetExecutablePath"><span class="hs-identifier hs-var">GetExecutablePath</span></a></span><span>
+</span><span id="line-130"></span><span>
+</span><span id="line-131"></span><span class="hs-comment">-- | Lifted 'Env.getEnv'.</span><span>
+</span><span id="line-132"></span><span class="hs-comment">--</span><span>
+</span><span id="line-133"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-134"></span><span id="local-6989586621679067010"><span class="annot"><a href="Effectful.Environment.Dynamic.html#getEnv"><span class="hs-identifier hs-type">getEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067010"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067010"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-135"></span><span id="getEnv"><span class="annot"><span class="annottext">getEnv :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+String -&gt; Eff es String
+</span><a href="Effectful.Environment.Dynamic.html#getEnv"><span class="hs-identifier hs-var hs-var">getEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) String -&gt; Eff es String
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) String -&gt; Eff es String)
+-&gt; (String -&gt; Environment (Eff es) String)
+-&gt; String
+-&gt; Eff es String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Environment (Eff es) String
+forall (m :: * -&gt; *). String -&gt; Environment m String
+</span><a href="Effectful.Environment.Dynamic.html#GetEnv"><span class="hs-identifier hs-var">GetEnv</span></a></span><span>
+</span><span id="line-136"></span><span>
+</span><span id="line-137"></span><span class="hs-comment">-- | Lifted 'Env.lookupEnv'.</span><span>
+</span><span id="line-138"></span><span class="hs-comment">--</span><span>
+</span><span id="line-139"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-140"></span><span id="local-6989586621679067016"><span class="annot"><a href="Effectful.Environment.Dynamic.html#lookupEnv"><span class="hs-identifier hs-type">lookupEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-141"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067016"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-142"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-143"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067016"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-144"></span><span id="lookupEnv"><span class="annot"><span class="annottext">lookupEnv :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+String -&gt; Eff es (Maybe String)
+</span><a href="Effectful.Environment.Dynamic.html#lookupEnv"><span class="hs-identifier hs-var hs-var">lookupEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) (Maybe String) -&gt; Eff es (Maybe String)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) (Maybe String) -&gt; Eff es (Maybe String))
+-&gt; (String -&gt; Environment (Eff es) (Maybe String))
+-&gt; String
+-&gt; Eff es (Maybe String)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Environment (Eff es) (Maybe String)
+forall (m :: * -&gt; *). String -&gt; Environment m (Maybe String)
+</span><a href="Effectful.Environment.Dynamic.html#LookupEnv"><span class="hs-identifier hs-var">LookupEnv</span></a></span><span>
+</span><span id="line-145"></span><span>
+</span><span id="line-146"></span><span class="hs-comment">-- | Lifted 'Env.setEnv'.</span><span>
+</span><span id="line-147"></span><span class="hs-comment">--</span><span>
+</span><span id="line-148"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-149"></span><span id="local-6989586621679067019"><span class="annot"><a href="Effectful.Environment.Dynamic.html#setEnv"><span class="hs-identifier hs-type">setEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067019"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067019"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-150"></span><span id="setEnv"><span class="annot"><span class="annottext">setEnv :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+String -&gt; String -&gt; Eff es ()
+</span><a href="Effectful.Environment.Dynamic.html#setEnv"><span class="hs-identifier hs-var hs-var">setEnv</span></a></span></span><span> </span><span id="local-6989586621679067188"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067188"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) () -&gt; Eff es ())
+-&gt; (String -&gt; Environment (Eff es) ()) -&gt; String -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Environment (Eff es) ()
+forall (m :: * -&gt; *). String -&gt; String -&gt; Environment m ()
+</span><a href="Effectful.Environment.Dynamic.html#SetEnv"><span class="hs-identifier hs-var">SetEnv</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067188"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-151"></span><span>
+</span><span id="line-152"></span><span class="hs-comment">-- | Lifted 'Env.unsetEnv'.</span><span>
+</span><span id="line-153"></span><span class="hs-comment">--</span><span>
+</span><span id="line-154"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-155"></span><span id="local-6989586621679067022"><span class="annot"><a href="Effectful.Environment.Dynamic.html#unsetEnv"><span class="hs-identifier hs-type">unsetEnv</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067022"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067022"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-156"></span><span id="unsetEnv"><span class="annot"><span class="annottext">unsetEnv :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+String -&gt; Eff es ()
+</span><a href="Effectful.Environment.Dynamic.html#unsetEnv"><span class="hs-identifier hs-var hs-var">unsetEnv</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) () -&gt; Eff es ())
+-&gt; (String -&gt; Environment (Eff es) ()) -&gt; String -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Environment (Eff es) ()
+forall (m :: * -&gt; *). String -&gt; Environment m ()
+</span><a href="Effectful.Environment.Dynamic.html#UnsetEnv"><span class="hs-identifier hs-var">UnsetEnv</span></a></span><span>
+</span><span id="line-157"></span><span>
+</span><span id="line-158"></span><span class="hs-comment">-- | Lifted 'Env.withArgs'.</span><span>
+</span><span id="line-159"></span><span class="hs-comment">--</span><span>
+</span><span id="line-160"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-161"></span><span id="local-6989586621679067025"><span id="local-6989586621679067026"><span class="annot"><a href="Effectful.Environment.Dynamic.html#withArgs"><span class="hs-identifier hs-type">withArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-162"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067025"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-163"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-164"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067025"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067026"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-165"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067025"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067026"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-166"></span><span id="withArgs"><span class="annot"><span class="annottext">withArgs :: forall (es :: [Effect]) a.
+(Environment :&gt; es, HasCallStack) =&gt;
+[String] -&gt; Eff es a -&gt; Eff es a
+</span><a href="Effectful.Environment.Dynamic.html#withArgs"><span class="hs-identifier hs-var hs-var">withArgs</span></a></span></span><span> </span><span id="local-6989586621679067203"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679067203"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) a -&gt; Eff es a
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) a -&gt; Eff es a)
+-&gt; (Eff es a -&gt; Environment (Eff es) a) -&gt; Eff es a -&gt; Eff es a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; Eff es a -&gt; Environment (Eff es) a
+forall (m :: * -&gt; *) a. [String] -&gt; m a -&gt; Environment m a
+</span><a href="Effectful.Environment.Dynamic.html#WithArgs"><span class="hs-identifier hs-var">WithArgs</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679067203"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-167"></span><span>
+</span><span id="line-168"></span><span class="hs-comment">-- | Lifted 'Env.withProgName'.</span><span>
+</span><span id="line-169"></span><span class="hs-comment">--</span><span>
+</span><span id="line-170"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-171"></span><span id="local-6989586621679067031"><span class="annot"><a href="Effectful.Environment.Dynamic.html#withProgName"><span class="hs-identifier hs-type">withProgName</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-172"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067031"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-173"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-174"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067031"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-175"></span><span>  </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067031"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-176"></span><span id="withProgName"><span class="annot"><span class="annottext">withProgName :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+String -&gt; Eff es () -&gt; Eff es ()
+</span><a href="Effectful.Environment.Dynamic.html#withProgName"><span class="hs-identifier hs-var hs-var">withProgName</span></a></span></span><span> </span><span id="local-6989586621679067211"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067211"><span class="hs-identifier hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Environment (Eff es) () -&gt; Eff es ())
+-&gt; (Eff es () -&gt; Environment (Eff es) ()) -&gt; Eff es () -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Eff es () -&gt; Environment (Eff es) ()
+forall (m :: * -&gt; *). String -&gt; m () -&gt; Environment m ()
+</span><a href="Effectful.Environment.Dynamic.html#WithProgName"><span class="hs-identifier hs-var">WithProgName</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679067211"><span class="hs-identifier hs-var">name</span></a></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span class="hs-comment">-- | Lifted 'Env.getEnvironment'.</span><span>
+</span><span id="line-179"></span><span class="hs-comment">--</span><span>
+</span><span id="line-180"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-181"></span><span id="local-6989586621679067034"><span class="annot"><a href="Effectful.Environment.Dynamic.html#getEnvironment"><span class="hs-identifier hs-type">getEnvironment</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Environment.Dynamic.html#Environment"><span class="hs-identifier hs-type">Environment</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067034"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679067034"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span><span class="hs-special">]</span></span><span>
+</span><span id="line-182"></span><span id="getEnvironment"><span class="annot"><span class="annottext">getEnvironment :: forall (es :: [Effect]).
+(Environment :&gt; es, HasCallStack) =&gt;
+Eff es [(String, String)]
+</span><a href="Effectful.Environment.Dynamic.html#getEnvironment"><span class="hs-identifier hs-var hs-var">getEnvironment</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) [(String, String)]
+-&gt; Eff es [(String, String)]
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Environment (Eff es) [(String, String)]
+forall (m :: * -&gt; *). Environment m [(String, String)]
+</span><a href="Effectful.Environment.Dynamic.html#GetEnvironment"><span class="hs-identifier hs-var">GetEnvironment</span></a></span><span>
+</span><span id="line-183"></span></pre></body></html>

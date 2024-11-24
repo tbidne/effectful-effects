@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# OPTIONS_GHC -Wno-redundant-constraints #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Time utils.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Time.Utils</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.Time.Utils.html#formatLocalTime"><span class="hs-identifier">formatLocalTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Effectful.Time.Utils.html#formatZonedTime"><span class="hs-identifier">formatZonedTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.Time.Utils.html#parseLocalTime"><span class="hs-identifier">parseLocalTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Effectful.Time.Utils.html#parseZonedTime"><span class="hs-identifier">parseZonedTime</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time.Format</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Format</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Time.LocalTime</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">LocalTime</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ZonedTime</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/5mzj60m9lwbpky2dp0fx7gqlgn3nrwdy-effectful-core-2.5.0.0-doc/share/doc/effectful-core-2.5.0.0/html/src/Effectful.Dispatch.Dynamic.html"><span class="hs-identifier">Effectful.Dispatch.Dynamic</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- | Formats the 'LocalTime' to @YYYY-MM-DD HH:MM:SS@.</span><span>
+</span><span id="line-19"></span><span class="hs-comment">--</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-21"></span><span class="annot"><a href="Effectful.Time.Utils.html#formatLocalTime"><span class="hs-identifier hs-type">formatLocalTime</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LocalTime</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-22"></span><span id="formatLocalTime"><span class="annot"><span class="annottext">formatLocalTime :: LocalTime -&gt; String
+</span><a href="Effectful.Time.Utils.html#formatLocalTime"><span class="hs-identifier hs-var hs-var">formatLocalTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeLocale -&gt; String -&gt; LocalTime -&gt; String
+forall t. FormatTime t =&gt; TimeLocale -&gt; String -&gt; t -&gt; String
+</span><span class="hs-identifier hs-var">Format.formatTime</span></span><span> </span><span class="annot"><span class="annottext">TimeLocale
+</span><span class="hs-identifier hs-var">Format.defaultTimeLocale</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Effectful.Time.Utils.html#localTimeFormat"><span class="hs-identifier hs-var">localTimeFormat</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- | Formats the 'ZonedTime' to @YYYY-MM-DD HH:MM:SS Z@.</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Effectful.Time.Utils.html#formatZonedTime"><span class="hs-identifier hs-type">formatZonedTime</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ZonedTime</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-28"></span><span id="formatZonedTime"><span class="annot"><span class="annottext">formatZonedTime :: ZonedTime -&gt; String
+</span><a href="Effectful.Time.Utils.html#formatZonedTime"><span class="hs-identifier hs-var hs-var">formatZonedTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeLocale -&gt; String -&gt; ZonedTime -&gt; String
+forall t. FormatTime t =&gt; TimeLocale -&gt; String -&gt; t -&gt; String
+</span><span class="hs-identifier hs-var">Format.formatTime</span></span><span> </span><span class="annot"><span class="annottext">TimeLocale
+</span><span class="hs-identifier hs-var">Format.defaultTimeLocale</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Effectful.Time.Utils.html#zonedTimeFormat"><span class="hs-identifier hs-var">zonedTimeFormat</span></a></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | Parses the 'LocalTime' from @YYYY-MM-DD HH:MM:SS@. If the 'MonadFail'</span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- instance throws an 'Control.Exception.Exception' consider</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- 'parseLocalTimeCallStack'.</span><span>
+</span><span id="line-33"></span><span class="hs-comment">--</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-35"></span><span id="local-6989586621679073721"><span class="annot"><a href="Effectful.Time.Utils.html#parseLocalTime"><span class="hs-identifier hs-type">parseLocalTime</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadFail</span></span><span> </span><span class="annot"><a href="#local-6989586621679073721"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679073721"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LocalTime</span></span></span><span>
+</span><span id="line-36"></span><span id="parseLocalTime"><span class="annot"><span class="annottext">parseLocalTime :: forall (f :: * -&gt; *).
+(HasCallStack, MonadFail f) =&gt;
+String -&gt; f LocalTime
+</span><a href="Effectful.Time.Utils.html#parseLocalTime"><span class="hs-identifier hs-var hs-var">parseLocalTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-37"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; TimeLocale -&gt; String -&gt; String -&gt; f LocalTime
+forall (m :: * -&gt; *) t.
+(MonadFail m, ParseTime t) =&gt;
+Bool -&gt; TimeLocale -&gt; String -&gt; String -&gt; m t
+</span><span class="hs-identifier hs-var">Format.parseTimeM</span></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="annottext">TimeLocale
+</span><span class="hs-identifier hs-var">Format.defaultTimeLocale</span></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">String
+</span><a href="Effectful.Time.Utils.html#localTimeFormat"><span class="hs-identifier hs-var">localTimeFormat</span></a></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-comment">-- | Parses the 'ZonedTime' from @YYYY-MM-DD HH:MM:SS Z@. If the 'MonadFail'</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- instance throws an 'Control.Exception.Exception' consider</span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- 'parseZonedTimeCallStack'.</span><span>
+</span><span id="line-45"></span><span class="hs-comment">--</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- ==== __Known Timezones__</span><span>
+</span><span id="line-47"></span><span class="hs-comment">--</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- * UTC</span><span>
+</span><span id="line-49"></span><span class="hs-comment">-- * UT</span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- * GMT</span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- * EST</span><span>
+</span><span id="line-52"></span><span class="hs-comment">-- * EDT</span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- * CST</span><span>
+</span><span id="line-54"></span><span class="hs-comment">-- * CDT</span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- * MST</span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- * MDT</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- * PST</span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- * PDT</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- * +HHMM (e.g. +1300)</span><span>
+</span><span id="line-60"></span><span class="hs-comment">--</span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-62"></span><span id="local-6989586621679073726"><span class="annot"><a href="Effectful.Time.Utils.html#parseZonedTime"><span class="hs-identifier hs-type">parseZonedTime</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">MonadFail</span></span><span> </span><span class="annot"><a href="#local-6989586621679073726"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679073726"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ZonedTime</span></span></span><span>
+</span><span id="line-63"></span><span id="parseZonedTime"><span class="annot"><span class="annottext">parseZonedTime :: forall (f :: * -&gt; *).
+(HasCallStack, MonadFail f) =&gt;
+String -&gt; f ZonedTime
+</span><a href="Effectful.Time.Utils.html#parseZonedTime"><span class="hs-identifier hs-var hs-var">parseZonedTime</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-64"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; TimeLocale -&gt; String -&gt; String -&gt; f ZonedTime
+forall (m :: * -&gt; *) t.
+(MonadFail m, ParseTime t) =&gt;
+Bool -&gt; TimeLocale -&gt; String -&gt; String -&gt; m t
+</span><span class="hs-identifier hs-var">Format.parseTimeM</span></span><span>
+</span><span id="line-65"></span><span>    </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">True</span></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="annottext">TimeLocale
+</span><span class="hs-identifier hs-var">Format.defaultTimeLocale</span></span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><span class="annottext">String
+</span><a href="Effectful.Time.Utils.html#zonedTimeFormat"><span class="hs-identifier hs-var">zonedTimeFormat</span></a></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="annot"><a href="Effectful.Time.Utils.html#localTimeFormat"><span class="hs-identifier hs-type">localTimeFormat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-70"></span><span id="localTimeFormat"><span class="annot"><span class="annottext">localTimeFormat :: String
+</span><a href="Effectful.Time.Utils.html#localTimeFormat"><span class="hs-identifier hs-var hs-var">localTimeFormat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;%0Y-%m-%d %H:%M:%S&quot;</span></span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="annot"><a href="Effectful.Time.Utils.html#zonedTimeFormat"><span class="hs-identifier hs-type">zonedTimeFormat</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-73"></span><span id="zonedTimeFormat"><span class="annot"><span class="annottext">zonedTimeFormat :: String
+</span><a href="Effectful.Time.Utils.html#zonedTimeFormat"><span class="hs-identifier hs-var hs-var">zonedTimeFormat</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;%0Y-%m-%d %H:%M:%S %Z&quot;</span></span><span>
+</span><span id="line-74"></span></pre></body></html>

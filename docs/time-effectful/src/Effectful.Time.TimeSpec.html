@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE UndecidableInstances #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-comment">-- | Provides the 'TimeSpec' type and algebra re-exports.</span><span>
+</span><span id="line-5"></span><span class="hs-comment">--</span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Effectful.Time.TimeSpec</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Type</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier">TimeSpec</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Creation</span></span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#fromSeconds"><span class="hs-identifier">fromSeconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier">fromNanoSeconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Elimination</span></span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#toSeconds"><span class="hs-identifier">toSeconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier">toNanoSeconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Operations</span></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#diffTimeSpec"><span class="hs-identifier">diffTimeSpec</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#normalizeTimeSpec"><span class="hs-identifier">normalizeTimeSpec</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Algebra</span></span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.ASemigroup.html#ASemigroup"><span class="hs-identifier">ASemigroup</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.AMonoid.html#AMonoid"><span class="hs-identifier">AMonoid</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSemiSpace.html#MSemiSpace"><span class="hs-identifier">MSemiSpace</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSpace.html#MSpace"><span class="hs-identifier">MSpace</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.Semimodule.html#Semimodule"><span class="hs-identifier">Semimodule</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.SemivectorSpace.html#SemivectorSpace"><span class="hs-identifier">SemivectorSpace</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Normed.html#Normed"><span class="hs-identifier">Normed</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#LowerBounded"><span class="hs-identifier">LowerBounded</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#UpperBoundless"><span class="hs-identifier">UpperBoundless</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.DeepSeq</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">NFData</span></span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html"><span class="hs-identifier">Data.Bounds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#LowerBounded"><span class="hs-identifier">LowerBounded</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#lowerBound"><span class="hs-identifier">lowerBound</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#UpperBoundless"><span class="hs-identifier">UpperBoundless</span></a></span><span class="hs-special">)</span><span class="hs-cpp">
+#if MIN_VERSION_base(4,17,0)
+</span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Float</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">properFractionDouble</span></span><span class="hs-special">)</span><span class="hs-cpp">
+#endif
+</span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Natural</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Natural</span></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.html"><span class="hs-identifier">Numeric.Algebra</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.AMonoid.html#AMonoid"><span class="hs-identifier">AMonoid</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.AMonoid.html#zero"><span class="hs-identifier">zero</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.ASemigroup.html#ASemigroup"><span class="hs-identifier">ASemigroup</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.ASemigroup.html#.%2B."><span class="hs-operator">(.+.)</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSemiSpace.html#MSemiSpace"><span class="hs-identifier">MSemiSpace</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSemiSpace.html#.%2A"><span class="hs-operator">(.*)</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-47"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSpace.html#MSpace"><span class="hs-identifier">MSpace</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSpace.html#.%25"><span class="hs-operator">(.%)</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Normed.html#Normed"><span class="hs-identifier">Normed</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Normed.html#norm"><span class="hs-identifier">norm</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.Semimodule.html#Semimodule"><span class="hs-identifier">Semimodule</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.SemivectorSpace.html#SemivectorSpace"><span class="hs-identifier">SemivectorSpace</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Core.html"><span class="hs-identifier">Optics.Core</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Internal.Optic.Types.html#A_Lens"><span class="hs-identifier">A_Lens</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#LabelOptic"><span class="hs-identifier">LabelOptic</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#labelOptic"><span class="hs-identifier">labelOptic</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Lens.html#lensVL"><span class="hs-identifier">lensVL</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="hs-comment">-- | Structure for holding time data. 'Eq' and 'Ord' are defined in terms of</span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- an equivalence class e.g.</span><span>
+</span><span id="line-56"></span><span class="hs-comment">--</span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-58"></span><span class="hs-comment">-- MkTimeSpec s n === MkTimeSpec 0 (s * 1_000_000_000 + n)</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-60"></span><span class="hs-comment">--</span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-62"></span><span class="hs-keyword">data</span><span> </span><span id="TimeSpec"><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-var">TimeSpec</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MkTimeSpec"><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">{</span><span> </span><span class="hs-comment">-- | Seconds.</span><span>
+</span><span id="line-64"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-65"></span><span>    </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-66"></span><span>    </span><span id="sec"><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#sec"><span class="hs-identifier hs-var hs-var">sec</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">,</span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-comment">-- | Nanoseconds.</span><span>
+</span><span id="line-68"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-69"></span><span>    </span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-70"></span><span>    </span><span id="nsec"><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#nsec"><span class="hs-identifier hs-var hs-var">nsec</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>
+</span><span id="line-73"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-74"></span><span>      </span><span id="local-6989586621679073511"><span id="local-6989586621679073513"><span class="annot"><span class="annottext">(forall x. TimeSpec -&gt; Rep TimeSpec x)
+-&gt; (forall x. Rep TimeSpec x -&gt; TimeSpec) -&gt; Generic TimeSpec
+forall x. Rep TimeSpec x -&gt; TimeSpec
+forall x. TimeSpec -&gt; Rep TimeSpec x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cfrom :: forall x. TimeSpec -&gt; Rep TimeSpec x
+from :: forall x. TimeSpec -&gt; Rep TimeSpec x
+$cto :: forall x. Rep TimeSpec x -&gt; TimeSpec
+to :: forall x. Rep TimeSpec x -&gt; TimeSpec
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></span></span></span><span class="hs-special">,</span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-76"></span><span>      </span><span id="local-6989586621679073517"><span id="local-6989586621679073524"><span id="local-6989586621679073528"><span class="annot"><span class="annottext">Int -&gt; TimeSpec -&gt; ShowS
+[TimeSpec] -&gt; ShowS
+TimeSpec -&gt; String
+(Int -&gt; TimeSpec -&gt; ShowS)
+-&gt; (TimeSpec -&gt; String) -&gt; ([TimeSpec] -&gt; ShowS) -&gt; Show TimeSpec
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; TimeSpec -&gt; ShowS
+showsPrec :: Int -&gt; TimeSpec -&gt; ShowS
+$cshow :: TimeSpec -&gt; String
+show :: TimeSpec -&gt; String
+$cshowList :: [TimeSpec] -&gt; ShowS
+showList :: [TimeSpec] -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span>
+</span><span id="line-77"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">anyclass</span></span><span>
+</span><span id="line-79"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-80"></span><span>      </span><span id="local-6989586621679073532"><span class="annot"><span class="annottext">TimeSpec -&gt; ()
+(TimeSpec -&gt; ()) -&gt; NFData TimeSpec
+forall a. (a -&gt; ()) -&gt; NFData a
+$crnf :: TimeSpec -&gt; ()
+rnf :: TimeSpec -&gt; ()
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">NFData</span></span></span><span>
+</span><span id="line-81"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-82"></span><span>
+</span><span id="line-83"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-84"></span><span class="hs-keyword">instance</span><span>
+</span><span id="line-85"></span><span>  </span><span id="local-6989586621679073399"><span id="local-6989586621679073400"><span id="local-6989586621679073401"><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679073399"><span class="hs-identifier hs-type">k</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Internal.Optic.Types.html#A_Lens"><span class="hs-identifier hs-type">A_Lens</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679073400"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679073401"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-86"></span><span>  </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#LabelOptic"><span class="hs-identifier hs-type">LabelOptic</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;sec&quot;</span></span><span> </span><span class="annot"><a href="#local-6989586621679073399"><span class="hs-identifier hs-type">k</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073400"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073401"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621679073558"><span class="annot"><span class="annottext">labelOptic :: Optic k NoIx TimeSpec TimeSpec a b
+</span><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#labelOptic"><span class="hs-identifier hs-var hs-var hs-var hs-var">labelOptic</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b
+forall s t a b. LensVL s t a b -&gt; Lens s t a b
+</span><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Lens.html#lensVL"><span class="hs-identifier hs-var">lensVL</span></a></span><span> </span><span class="annot"><span class="annottext">(LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b)
+-&gt; LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073561"><span class="annot"><span class="annottext">a -&gt; f b
+</span><a href="#local-6989586621679073561"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073562"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073562"><span class="hs-identifier hs-var">a1</span></a></span></span><span> </span><span id="local-6989586621679073563"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073563"><span class="hs-identifier hs-var">a2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-89"></span><span>    </span><span class="annot"><span class="annottext">(Natural -&gt; TimeSpec) -&gt; f Natural -&gt; f TimeSpec
+forall a b. (a -&gt; b) -&gt; f a -&gt; f b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073564"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073564"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073564"><span class="hs-identifier hs-var">b</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073563"><span class="hs-identifier hs-var">a2</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; f b
+</span><a href="#local-6989586621679073561"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+Natural
+</span><a href="#local-6989586621679073562"><span class="hs-identifier hs-var">a1</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#labelOptic"><span class="hs-pragma hs-type">labelOptic</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-93"></span><span class="hs-keyword">instance</span><span>
+</span><span id="line-94"></span><span>  </span><span id="local-6989586621679073422"><span id="local-6989586621679073423"><span id="local-6989586621679073424"><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679073422"><span class="hs-identifier hs-type">k</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Internal.Optic.Types.html#A_Lens"><span class="hs-identifier hs-type">A_Lens</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679073423"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621679073424"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">~</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#LabelOptic"><span class="hs-identifier hs-type">LabelOptic</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;nsec&quot;</span></span><span> </span><span class="annot"><a href="#local-6989586621679073422"><span class="hs-identifier hs-type">k</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073423"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679073424"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-97"></span><span>  </span><span id="local-6989586621679073573"><span class="annot"><span class="annottext">labelOptic :: Optic k NoIx TimeSpec TimeSpec a b
+</span><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#labelOptic"><span class="hs-identifier hs-var hs-var hs-var hs-var">labelOptic</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b
+forall s t a b. LensVL s t a b -&gt; Lens s t a b
+</span><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Lens.html#lensVL"><span class="hs-identifier hs-var">lensVL</span></a></span><span> </span><span class="annot"><span class="annottext">(LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b)
+-&gt; LensVL TimeSpec TimeSpec a b -&gt; Lens TimeSpec TimeSpec a b
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679073576"><span class="annot"><span class="annottext">a -&gt; f b
+</span><a href="#local-6989586621679073576"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073577"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073577"><span class="hs-identifier hs-var">a1</span></a></span></span><span> </span><span id="local-6989586621679073578"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073578"><span class="hs-identifier hs-var">a2</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><span class="annottext">(Natural -&gt; TimeSpec) -&gt; f Natural -&gt; f TimeSpec
+forall a b. (a -&gt; b) -&gt; f a -&gt; f b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679073579"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073579"><span class="hs-identifier hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073577"><span class="hs-identifier hs-var">a1</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073579"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; f b
+</span><a href="#local-6989586621679073576"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">a
+Natural
+</span><a href="#local-6989586621679073578"><span class="hs-identifier hs-var">a2</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-99"></span><span>  </span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="file:///nix/store/x811ap6g19i6xayhfghmbc0gsxx07vpg-optics-core-0.4.1.1-doc/share/doc/optics-core-0.4.1.1/html/src/Optics.Label.html#labelOptic"><span class="hs-pragma hs-type">labelOptic</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-100"></span><span>
+</span><span id="line-101"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-102"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073582"><span class="annot"><span class="hs-identifier hs-type">Eq</span></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-103"></span><span>  </span><span id="local-6989586621679073588"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073588"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073589"><span class="annot"><span class="annottext">== :: TimeSpec -&gt; TimeSpec -&gt; Bool
+</span><span class="hs-operator hs-var hs-var hs-var hs-var">==</span></span></span><span> </span><span id="local-6989586621679073590"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073588"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">==</span></span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073590"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-106"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679073594"><span id="local-6989586621679073598"><span id="local-6989586621679073602"><span id="local-6989586621679073605"><span id="local-6989586621679073608"><span id="local-6989586621679073611"><span class="annot"><span class="hs-identifier hs-type">Ord</span></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span></span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-107"></span><span>  </span><span id="local-6989586621679073615"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073615"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span id="local-6989586621679073616"><span class="annot"><span class="annottext">&lt;= :: TimeSpec -&gt; TimeSpec -&gt; Bool
+</span><a href="#local-6989586621679073616"><span class="hs-operator hs-var hs-var hs-var hs-var">&lt;=</span></a></span></span><span> </span><span id="local-6989586621679073618"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073618"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073615"><span class="hs-identifier hs-var">l</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&lt;=</span></span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073618"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-110"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#LowerBounded"><span class="hs-identifier hs-type">LowerBounded</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-111"></span><span>  </span><span id="local-6989586621679073624"><span class="annot"><span class="annottext">lowerBound :: TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#lowerBound"><span class="hs-identifier hs-var hs-var hs-var hs-var">lowerBound</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-112"></span><span>
+</span><span id="line-113"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-114"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/bounds-0.1-1d52084a1f971a4fdbd720f1e5ab47c1e60b195d90d8a7c895bfb619e4c0dfac/share/doc/html/src/Data.Bounds.html#UpperBoundless"><span class="hs-identifier hs-type">UpperBoundless</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-117"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.ASemigroup.html#ASemigroup"><span class="hs-identifier hs-type">ASemigroup</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-118"></span><span>  </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073632"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073632"><span class="hs-identifier hs-var">ls</span></a></span></span><span> </span><span id="local-6989586621679073633"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073633"><span class="hs-identifier hs-var">ln</span></a></span></span><span> </span><span id="local-6989586621679073634"><span class="annot"><span class="annottext">.+. :: TimeSpec -&gt; TimeSpec -&gt; TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.ASemigroup.html#.%2B."><span class="hs-operator hs-var hs-var hs-var hs-var">.+.</span></a></span></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073635"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073635"><span class="hs-identifier hs-var">rs</span></a></span></span><span> </span><span id="local-6989586621679073636"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073636"><span class="hs-identifier hs-var">rn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073632"><span class="hs-identifier hs-var">ls</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073635"><span class="hs-identifier hs-var">rs</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073633"><span class="hs-identifier hs-var">ln</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073636"><span class="hs-identifier hs-var">rn</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-121"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.AMonoid.html#AMonoid"><span class="hs-identifier hs-type">AMonoid</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-122"></span><span>  </span><span id="local-6989586621679073645"><span class="annot"><span class="annottext">zero :: TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Additive.AMonoid.html#zero"><span class="hs-identifier hs-var hs-var hs-var hs-var">zero</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">0</span></span><span>
+</span><span id="line-123"></span><span>
+</span><span id="line-124"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-125"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSemiSpace.html#MSemiSpace"><span class="hs-identifier hs-type">MSemiSpace</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073654"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073654"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679073655"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073655"><span class="hs-identifier hs-var">n</span></a></span></span><span> </span><span id="local-6989586621679073656"><span class="annot"><span class="annottext">.* :: TimeSpec -&gt; Natural -&gt; TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSemiSpace.html#.%2A"><span class="hs-operator hs-var hs-var hs-var hs-var">.*</span></a></span></span><span> </span><span id="local-6989586621679073657"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073657"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073654"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073657"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073655"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073657"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-127"></span><span>
+</span><span id="line-128"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-129"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSpace.html#MSpace"><span class="hs-identifier hs-type">MSpace</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-130"></span><span>  </span><span id="local-6989586621679073670"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073670"><span class="hs-identifier hs-var">ts</span></a></span></span><span> </span><span id="local-6989586621679073671"><span class="annot"><span class="annottext">.% :: TimeSpec -&gt; Natural -&gt; TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.MSpace.html#.%25"><span class="hs-operator hs-var hs-var hs-var hs-var">.%</span></a></span></span><span> </span><span id="local-6989586621679073672"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073672"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromSeconds"><span class="hs-identifier hs-var">fromSeconds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TimeSpec -&gt; Double
+</span><a href="Effectful.Time.TimeSpec.html#toSeconds"><span class="hs-identifier hs-var">toSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073670"><span class="hs-identifier hs-var">ts</span></a></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Double -&gt; Double
+forall a. Fractional a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Double
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073672"><span class="hs-identifier hs-var">k</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>
+</span><span id="line-132"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-133"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.Semimodule.html#Semimodule"><span class="hs-identifier hs-type">Semimodule</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span>
+</span><span id="line-134"></span><span>
+</span><span id="line-135"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-136"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Space.SemivectorSpace.html#SemivectorSpace"><span class="hs-identifier hs-type">SemivectorSpace</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span>
+</span><span id="line-137"></span><span>
+</span><span id="line-138"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-139"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Normed.html#Normed"><span class="hs-identifier hs-type">Normed</span></a></span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-140"></span><span>  </span><span id="local-6989586621679073695"><span class="annot"><span class="annottext">norm :: TimeSpec -&gt; TimeSpec
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.8.2/algebra-simple-0.1-eb2a2993560d9ccf5a7cb5ba2e184922ae85690c56669d96a71f578f58637d3a/share/doc/html/src/Numeric.Algebra.Normed.html#norm"><span class="hs-identifier hs-var hs-var hs-var hs-var">norm</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; TimeSpec
+forall a. a -&gt; a
+</span><span class="hs-identifier hs-var">id</span></span><span>
+</span><span id="line-141"></span><span>
+</span><span id="line-142"></span><span class="hs-comment">-- | Converts a 'Double' to a 'TimeSpec'.</span><span>
+</span><span id="line-143"></span><span class="hs-comment">--</span><span>
+</span><span id="line-144"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-145"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#fromSeconds"><span class="hs-identifier hs-type">fromSeconds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span>
+</span><span id="line-146"></span><span id="fromSeconds"><span class="annot"><span class="annottext">fromSeconds :: Double -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromSeconds"><span class="hs-identifier hs-var hs-var">fromSeconds</span></a></span></span><span> </span><span id="local-6989586621679073697"><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var">d</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-147"></span><span>  </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span>
+</span><span id="line-148"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">sec :: Natural
+</span><a href="Effectful.Time.TimeSpec.html#sec"><span class="hs-identifier hs-var">sec</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073698"><span class="hs-identifier hs-var">seconds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-149"></span><span>      </span><span class="annot"><span class="annottext">nsec :: Natural
+</span><a href="Effectful.Time.TimeSpec.html#nsec"><span class="hs-identifier hs-var">nsec</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var">nanoseconds</span></a></span><span>
+</span><span id="line-150"></span><span>    </span><span class="hs-special">}</span><span>
+</span><span id="line-151"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-152"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679073698"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073698"><span class="hs-identifier hs-var">seconds</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073700"><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679073700"><span class="hs-identifier hs-var">remainder</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; (Natural, Double)
+forall b. Integral b =&gt; Double -&gt; (b, Double)
+</span><span class="hs-identifier hs-var">properFractionDouble</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679073697"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><span id="line-153"></span><span>    </span><span id="local-6989586621679073699"><span class="annot"><span class="annottext">nanoseconds :: Natural
+</span><a href="#local-6989586621679073699"><span class="hs-identifier hs-var hs-var">nanoseconds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Double -&gt; Natural
+forall b. Integral b =&gt; Double -&gt; b
+forall a b. (RealFrac a, Integral b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">floor</span></span><span> </span><span class="annot"><span class="annottext">(Double -&gt; Natural) -&gt; Double -&gt; Natural
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><a href="#local-6989586621679073700"><span class="hs-identifier hs-var">remainder</span></a></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Double -&gt; Double
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><span class="hs-number">1_000_000_000</span></span><span>
+</span><span id="line-154"></span><span>
+</span><span id="line-155"></span><span class="hs-comment">-- | Converts 'Natural' nanoseconds to a 'TimeSpec'.</span><span>
+</span><span id="line-156"></span><span class="hs-comment">--</span><span>
+</span><span id="line-157"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-158"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier hs-type">fromNanoSeconds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span>
+</span><span id="line-159"></span><span id="fromNanoSeconds"><span class="annot"><span class="annottext">fromNanoSeconds :: Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier hs-var hs-var">fromNanoSeconds</span></a></span></span><span> </span><span id="local-6989586621679073702"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073702"><span class="hs-identifier hs-var">nanoseconds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-var">MkTimeSpec</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073703"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073704"><span class="hs-identifier hs-var">ns</span></a></span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-161"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621679073703"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073703"><span class="hs-identifier hs-var">s</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679073704"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073704"><span class="hs-identifier hs-var">ns</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; (Natural, Natural)
+forall a. Integral a =&gt; a -&gt; a -&gt; (a, a)
+</span><span class="hs-identifier hs-var">quotRem</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073702"><span class="hs-identifier hs-var">nanoseconds</span></a></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">1_000_000_000</span></span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span class="hs-comment">-- | Converts a 'TimeSpec' to a 'Double'.</span><span>
+</span><span id="line-164"></span><span class="hs-comment">--</span><span>
+</span><span id="line-165"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-166"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#toSeconds"><span class="hs-identifier hs-type">toSeconds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Double</span></span><span>
+</span><span id="line-167"></span><span id="toSeconds"><span class="annot"><span class="annottext">toSeconds :: TimeSpec -&gt; Double
+</span><a href="Effectful.Time.TimeSpec.html#toSeconds"><span class="hs-identifier hs-var hs-var">toSeconds</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073706"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073706"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679073707"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073707"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-168"></span><span>  </span><span class="annot"><span class="annottext">Natural -&gt; Double
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073706"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Double -&gt; Double
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural -&gt; Double
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><span class="hs-identifier hs-var">fromIntegral</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073707"><span class="hs-identifier hs-var">n</span></a></span><span> </span><span class="annot"><span class="annottext">Double -&gt; Double -&gt; Double
+forall a. Fractional a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">/</span></span><span> </span><span class="annot"><span class="annottext">Double
+</span><span class="hs-number">1_000_000_000</span></span><span class="hs-special">)</span><span>
+</span><span id="line-169"></span><span>
+</span><span id="line-170"></span><span class="hs-comment">-- | Converts a 'TimeSpec' into 'Natural' nanoseconds.</span><span>
+</span><span id="line-171"></span><span class="hs-comment">--</span><span>
+</span><span id="line-172"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-173"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-type">toNanoSeconds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Natural</span></span><span>
+</span><span id="line-174"></span><span id="toNanoSeconds"><span class="annot"><span class="annottext">toNanoSeconds :: TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var hs-var">toNanoSeconds</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Time.TimeSpec.html#MkTimeSpec"><span class="hs-identifier hs-type">MkTimeSpec</span></a></span><span> </span><span id="local-6989586621679073708"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073708"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679073709"><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073709"><span class="hs-identifier hs-var">n</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073708"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">*</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><span class="hs-number">1_000_000_000</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">+</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073709"><span class="hs-identifier hs-var">n</span></a></span><span>
+</span><span id="line-175"></span><span>
+</span><span id="line-176"></span><span class="hs-comment">-- | Returns the absolute difference of two 'TimeSpec's.</span><span>
+</span><span id="line-177"></span><span class="hs-comment">--</span><span>
+</span><span id="line-178"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-179"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#diffTimeSpec"><span class="hs-identifier hs-type">diffTimeSpec</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span>
+</span><span id="line-180"></span><span id="diffTimeSpec"><span class="annot"><span class="annottext">diffTimeSpec :: TimeSpec -&gt; TimeSpec -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#diffTimeSpec"><span class="hs-identifier hs-var hs-var">diffTimeSpec</span></a></span></span><span> </span><span id="local-6989586621679073710"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073710"><span class="hs-identifier hs-var">t1</span></a></span></span><span> </span><span id="local-6989586621679073711"><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073711"><span class="hs-identifier hs-var">t2</span></a></span></span><span>
+</span><span id="line-181"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">t1'</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><span class="hs-operator hs-var">&gt;=</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">t2'</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier hs-var">fromNanoSeconds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">t1'</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">t2'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><span class="hs-identifier hs-var">otherwise</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier hs-var">fromNanoSeconds</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var">t2'</span></a></span><span> </span><span class="annot"><span class="annottext">Natural -&gt; Natural -&gt; Natural
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-glyph hs-var">-</span></span><span> </span><span class="annot"><span class="annottext">Natural
+</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var">t1'</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-183"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-184"></span><span>    </span><span id="local-6989586621679073712"><span class="annot"><span class="annottext">t1' :: Natural
+</span><a href="#local-6989586621679073712"><span class="hs-identifier hs-var hs-var">t1'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073710"><span class="hs-identifier hs-var">t1</span></a></span><span>
+</span><span id="line-185"></span><span>    </span><span id="local-6989586621679073713"><span class="annot"><span class="annottext">t2' :: Natural
+</span><a href="#local-6989586621679073713"><span class="hs-identifier hs-var hs-var">t2'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">TimeSpec
+</span><a href="#local-6989586621679073711"><span class="hs-identifier hs-var">t2</span></a></span><span>
+</span><span id="line-186"></span><span>
+</span><span id="line-187"></span><span class="hs-comment">-- | Normalizes nanoseconds &lt; 1 second.</span><span>
+</span><span id="line-188"></span><span class="hs-comment">--</span><span>
+</span><span id="line-189"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-190"></span><span class="annot"><a href="Effectful.Time.TimeSpec.html#normalizeTimeSpec"><span class="hs-identifier hs-type">normalizeTimeSpec</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Time.TimeSpec.html#TimeSpec"><span class="hs-identifier hs-type">TimeSpec</span></a></span><span>
+</span><span id="line-191"></span><span id="normalizeTimeSpec"><span class="annot"><span class="annottext">normalizeTimeSpec :: TimeSpec -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#normalizeTimeSpec"><span class="hs-identifier hs-var hs-var">normalizeTimeSpec</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Natural -&gt; TimeSpec
+</span><a href="Effectful.Time.TimeSpec.html#fromNanoSeconds"><span class="hs-identifier hs-var">fromNanoSeconds</span></a></span><span> </span><span class="annot"><span class="annottext">(Natural -&gt; TimeSpec)
+-&gt; (TimeSpec -&gt; Natural) -&gt; TimeSpec -&gt; TimeSpec
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">TimeSpec -&gt; Natural
+</span><a href="Effectful.Time.TimeSpec.html#toNanoSeconds"><span class="hs-identifier hs-var">toNanoSeconds</span></a></span><span class="hs-cpp">
+
+#if !MIN_VERSION_base(4,17,0)
+</span><span class="hs-identifier">properFractionDouble</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier">Integral</span><span> </span><span class="hs-identifier">b</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier">Double</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">b</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">Double</span><span class="hs-special">)</span><span>
+</span><span id="line-195"></span><span class="hs-pragma">{-# NOINLINE</span><span> </span><span class="hs-pragma">[</span><span class="hs-pragma">1</span><span class="hs-pragma">]</span><span> </span><span class="hs-pragma">properFractionDouble</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-196"></span><span class="hs-identifier">properFractionDouble</span><span> </span><span class="hs-identifier">x</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-197"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier">decodeFloat</span><span> </span><span class="hs-identifier">x</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-198"></span><span>    </span><span class="hs-special">(</span><span class="hs-identifier">m</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">n</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-199"></span><span>      </span><span class="hs-keyword">if</span><span> </span><span class="hs-identifier">n</span><span> </span><span class="hs-operator">&gt;=</span><span> </span><span class="hs-number">0</span><span>
+</span><span id="line-200"></span><span>        </span><span class="hs-keyword">then</span><span> </span><span class="hs-special">(</span><span class="hs-identifier">fromInteger</span><span> </span><span class="hs-identifier">m</span><span> </span><span class="hs-operator">*</span><span> </span><span class="hs-number">2</span><span> </span><span class="hs-operator">^</span><span> </span><span class="hs-identifier">n</span><span class="hs-special">,</span><span> </span><span class="hs-number">0.0</span><span class="hs-special">)</span><span>
+</span><span id="line-201"></span><span>        </span><span class="hs-keyword">else</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-identifier">quotRem</span><span> </span><span class="hs-identifier">m</span><span> </span><span class="hs-special">(</span><span class="hs-number">2</span><span> </span><span class="hs-operator">^</span><span> </span><span class="hs-identifier">negate</span><span> </span><span class="hs-identifier">n</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-202"></span><span>          </span><span class="hs-special">(</span><span class="hs-identifier">w</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">r</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-203"></span><span>            </span><span class="hs-special">(</span><span class="hs-identifier">fromInteger</span><span> </span><span class="hs-identifier">w</span><span class="hs-special">,</span><span> </span><span class="hs-identifier">encodeFloat</span><span> </span><span class="hs-identifier">r</span><span> </span><span class="hs-identifier">n</span><span class="hs-special">)</span><span class="hs-cpp">
+#endif
+</span></pre></body></html>
